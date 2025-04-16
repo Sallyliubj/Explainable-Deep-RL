@@ -1,3 +1,5 @@
+.DS_Store
+__pycache__
 /venv
 .env
 results/
@@ -9,3 +11,6 @@ results/
 
 experiment.ipynb
 .qodo
+
+/dataset
+generate_simulated_data.py
