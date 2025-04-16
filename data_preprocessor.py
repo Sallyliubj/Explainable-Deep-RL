@@ -31,6 +31,12 @@ def preprocess_data(datasets: Dict[str, pd.DataFrame],
                 logger.error(f"Missing or empty dataset: {dataset}")
                 raise ValueError(f"Dataset {dataset} is missing or empty")
         
+        # Convert all column names to lowercase for each dataset
+        logger.info("Converting all column names to lowercase...")
+        for name, df in datasets.items():
+            datasets[name].columns = df.columns.str.lower()
+            logger.info(f"Converted columns for {name}: {datasets[name].columns.tolist()}")
+        
         # Extract core datasets
         diagnoses = datasets['diagnoses_icd']
         prescriptions = datasets['prescriptions']
@@ -49,6 +55,7 @@ def preprocess_data(datasets: Dict[str, pd.DataFrame],
         # Dynamically select infection codes if not provided
         if infection_codes is None or len(infection_codes) == 0:
             # Clean and count ICD9 codes
+            diagnoses.columns = diagnoses.columns.str.lower()
             diagnoses['clean_icd9'] = diagnoses['icd9_code'].str.replace('.', '').str.strip()
             code_counts = diagnoses['clean_icd9'].value_counts()
             
