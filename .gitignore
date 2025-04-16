@@ -1,0 +1,11 @@
+/venv
+.env
+results/
+*.png
+*.txt
+*.csv
+*.json
+*.yaml
+
+experiment.ipynb
+.qodo
