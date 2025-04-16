@@ -7,6 +7,8 @@ from antibioticEnv import AntibioticEnvironment
 import os
 from data_loader import DataLoader
 from data_preprocessor import preprocess_data
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
 
 def test_agent(agent, env, episodes=100, render=False):
     """
@@ -25,6 +27,10 @@ def test_agent(agent, env, episodes=100, render=False):
     steps_per_episode = []
     correct_prescriptions = 0
     total_prescriptions = 0
+    
+    # Track predictions and actual values for confusion matrix
+    y_true = []
+    y_pred = []
     
     # Track action distribution
     action_counts = {action: 0 for action in env.action_space}
@@ -77,6 +83,12 @@ def test_agent(agent, env, episodes=100, render=False):
             # Track action distribution
             action_counts[env.action_space[action]] += 1
             
+            # Record actual and predicted prescriptions
+            actual_prescription = env.data.iloc[env.current_idx]['drug_name_generic']
+            predicted_prescription = env.action_space[action]
+            y_true.append(actual_prescription)
+            y_pred.append(predicted_prescription)
+            
             # Take action in environment
             next_state, reward, done, info = env.step(action)
             print(f"Reward: {reward:.2f}")
@@ -118,31 +130,10 @@ def test_agent(agent, env, episodes=100, render=False):
         steps_per_episode.append(step)
         
         print(f"Episode {episode+1}/{episodes}, Reward: {episode_reward:.2f}, Steps: {step}")
-        
-        # Print running action distribution every 10 episodes
-        if (episode + 1) % 10 == 0:
-            print("\nCurrent Action Distribution:")
-            total_actions = sum(action_counts.values())
-            for action, count in action_counts.items():
-                percentage = (count / total_actions) * 100
-                print(f"{action}: {count} times ({percentage:.1f}%)")
     
-    # Print final Q-value statistics
-    print("\nQ-value Statistics:")
-    for action in env.action_space:
-        q_values = q_value_stats[action]
-        print(f"{action}:")
-        print(f"  Mean: {np.mean(q_values):.3f}")
-        print(f"  Std: {np.std(q_values):.3f}")
-        print(f"  Min: {np.min(q_values):.3f}")
-        print(f"  Max: {np.max(q_values):.3f}")
-    
-    # Print final action distribution
-    print("\nFinal Action Distribution:")
-    total_actions = sum(action_counts.values())
-    for action, count in action_counts.items():
-        percentage = (count / total_actions) * 100
-        print(f"{action}: {count} times ({percentage:.1f}%)")
+    # Calculate confusion matrix
+    unique_labels = sorted(list(set(y_true) | set(y_pred)))
+    conf_matrix = confusion_matrix(y_true, y_pred, labels=unique_labels)
     
     # Calculate metrics
     metrics = {
@@ -151,7 +142,10 @@ def test_agent(agent, env, episodes=100, render=False):
         'avg_steps': np.mean(steps_per_episode),
         'total_episodes': episodes,
         'action_distribution': action_counts,
-        'q_value_stats': q_value_stats
+        'q_value_stats': q_value_stats,
+        'confusion_matrix': conf_matrix,
+        'confusion_matrix_labels': unique_labels,
+        'classification_report': classification_report(y_true, y_pred, labels=unique_labels, output_dict=True)
     }
     
     if total_prescriptions > 0:
@@ -222,12 +216,33 @@ def save_episode_data(episode_data, save_dir):
         } for ep in episode_data]
     )
 
+def plot_confusion_matrix(conf_matrix, labels, save_path):
+    """Plot and save confusion matrix"""
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
+                xticklabels=labels, yticklabels=labels)
+    plt.title('Confusion Matrix')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.xticks(rotation=45, ha='right')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+
 def main():
     # Load test data
-    print("Loading test data...")
-    data_loader = DataLoader(data_path="dataset/mimic-iii-clinical-database-demo-1.4/")
-    test_data = data_loader.load_mimic_data(split='test')
-    test_data = preprocess_data(test_data)
+    # print("Loading test data...")
+    # data_loader = DataLoader(data_path="dataset/mimic-iii-clinical-database-demo-1.4/")
+    # test_data = data_loader.load_mimic_data(split='test')
+    # test_data = preprocess_data(test_data)
+
+    # use simulated data
+    print("Loading simulated test data...")
+    test_data = pd.read_csv("dataset/simulated/test_processed.csv")
+    
+    if test_data.empty:
+        raise ValueError("Data loading failed - check simulated data files")
     
     # Create test environment
     print("Creating test environment...")
@@ -266,6 +281,49 @@ def main():
     results_dir = 'results'
     os.makedirs(results_dir, exist_ok=True)
     
+    # Save initial data distribution
+    print("Saving initial data distribution...")
+    prescription_counts = test_env.data['drug_name_generic'].value_counts()
+    total_cases = len(test_env.data)
+    with open(f"{results_dir}/initial_distribution.txt", 'w') as f:
+        f.write("Initial Data Distribution:\n")
+        for drug, count in prescription_counts.items():
+            percentage = (count / total_cases) * 100
+            f.write(f"{drug}: {count} cases ({percentage:.1f}%)\n")
+    
+    # Plot and save confusion matrix
+    print("Saving confusion matrix...")
+    plot_confusion_matrix(
+        metrics['confusion_matrix'],
+        metrics['confusion_matrix_labels'],
+        f"{results_dir}/confusion_matrix.png"
+    )
+    
+    # Save classification report
+    print("Saving classification report...")
+    with open(f"{results_dir}/classification_report.txt", 'w') as f:
+        f.write("Classification Report\n")
+        f.write("====================\n\n")
+        for label in metrics['confusion_matrix_labels']:
+            report = metrics['classification_report'][label]
+            f.write(f"{label}:\n")
+            f.write(f"  Precision: {report['precision']:.3f}\n")
+            f.write(f"  Recall: {report['recall']:.3f}\n")
+            f.write(f"  F1-score: {report['f1-score']:.3f}\n")
+            f.write(f"  Support: {report['support']}\n\n")
+        
+        # Write overall metrics
+        f.write("Overall:\n")
+        # Handle accuracy separately as it's a float
+        f.write(f"Accuracy: {metrics['classification_report']['accuracy']:.3f}\n\n")
+        # Handle macro and weighted averages
+        for metric in ['macro avg', 'weighted avg']:
+            if metric in metrics['classification_report']:
+                f.write(f"{metric}:\n")
+                for k, v in metrics['classification_report'][metric].items():
+                    f.write(f"  {k}: {v:.3f}\n")
+                f.write("\n")
+    
     # Plot rewards
     print("Plotting rewards...")
     plot_rewards(rewards, save_path=f'{results_dir}/test_rewards_distribution.png')
@@ -277,8 +335,29 @@ def main():
     # Save metrics to file
     print("Saving metrics...")
     with open(f"{results_dir}/test_metrics.txt", 'w') as f:
-        for key, value in metrics.items():
-            f.write(f"{key}: {value}\n")
+        # Write general metrics
+        f.write("General Metrics:\n")
+        f.write(f"Average Reward: {metrics['avg_reward']:.2f} ± {metrics['std_reward']:.2f}\n")
+        f.write(f"Average Steps per Episode: {metrics['avg_steps']:.2f}\n")
+        if 'prescription_accuracy' in metrics:
+            f.write(f"Prescription Accuracy: {metrics['prescription_accuracy']*100:.2f}%\n")
+        
+        # Write action distribution
+        f.write("\nAction Distribution:\n")
+        total_actions = sum(metrics['action_distribution'].values())
+        for action, count in metrics['action_distribution'].items():
+            percentage = (count / total_actions) * 100
+            f.write(f"{action}: {count} times ({percentage:.1f}%)\n")
+        
+        # Write Q-value statistics
+        f.write("\nQ-value Statistics:\n")
+        for action in metrics['q_value_stats']:
+            q_values = metrics['q_value_stats'][action]
+            f.write(f"{action}:\n")
+            f.write(f"  Mean: {np.mean(q_values):.3f}\n")
+            f.write(f"  Std: {np.std(q_values):.3f}\n")
+            f.write(f"  Min: {np.min(q_values):.3f}\n")
+            f.write(f"  Max: {np.max(q_values):.3f}\n")
     
     print(f"Results saved to {results_dir}/")
 
