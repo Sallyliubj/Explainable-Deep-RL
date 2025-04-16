@@ -9,6 +9,7 @@ from data_loader import DataLoader
 from data_preprocessor import preprocess_data
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
+from explainability import ExplainableAgent
 
 def test_agent(agent, env, episodes=100, render=False):
     """
@@ -49,6 +50,13 @@ def test_agent(agent, env, episodes=100, render=False):
     # Track Q-value statistics
     q_value_stats = {action: [] for action in env.action_space}
     
+    # Create explainable agent wrapper
+    explainable_agent = ExplainableAgent(agent)
+    explainable_agent.initialize_explainer(env.features)
+    
+    # Track feature importance across episodes
+    all_states = []
+    
     for episode in range(episodes):
         state = env.reset()
         episode_reward = 0
@@ -60,24 +68,39 @@ def test_agent(agent, env, episodes=100, render=False):
         episode_rewards = []
         
         while not done:
+            # Store state for later analysis
+            all_states.append(state.copy())
+            
             # Agent selects action (no exploration during testing)
             state_2d = np.atleast_2d(state.astype(np.float32))
-            q_values = agent.model.predict(state_2d)[0]
+            action, attention_weights = agent.act(state_2d)
+            q_values = agent.model.predict(state_2d)[0][0]
             
             # Store Q-values for each action
             for i, action_name in enumerate(env.action_space):
                 q_value_stats[action_name].append(q_values[i])
             
-            # Print Q-values for every episode
-            print(f"\nEpisode {episode+1}, Step {step+1} Q-values:")
+            # Print Q-values and feature importance for every episode
+            print(f"\nEpisode {episode+1}, Step {step+1}")
+            print("Q-values:")
             for i, (act, q) in enumerate(zip(env.action_space, q_values)):
                 print(f"{act}: {q:.3f}")
+            
+            # Get and print feature importance
+            if episode % 10 == 0:  # Print every 10 episodes to avoid too much output
+                attention_importance, shap_importance = explainable_agent.explain_prediction(state_2d)
+                print("\nFeature Importance:")
+                print("Attention-based:")
+                for feature, importance in attention_importance.items():
+                    print(f"{feature}: {importance:.3f}")
+                print("\nSHAP-based:")
+                for feature, importance in shap_importance.items():
+                    print(f"{feature}: {importance:.3f}")
             
             # Get prescription indicator
             has_prescription = state[-1]
             print(f"Has prescription: {bool(has_prescription)}")
             
-            action = np.argmax(q_values)
             print(f"Selected action: {env.action_space[action]}")
             
             # Track action distribution
@@ -135,6 +158,10 @@ def test_agent(agent, env, episodes=100, render=False):
     unique_labels = sorted(list(set(y_true) | set(y_pred)))
     conf_matrix = confusion_matrix(y_true, y_pred, labels=unique_labels)
     
+    # Analyze feature importance across all episodes
+    all_states = np.array(all_states)
+    feature_importance = explainable_agent.explain_batch(all_states)
+    
     # Calculate metrics
     metrics = {
         'avg_reward': np.mean(rewards),
@@ -145,7 +172,8 @@ def test_agent(agent, env, episodes=100, render=False):
         'q_value_stats': q_value_stats,
         'confusion_matrix': conf_matrix,
         'confusion_matrix_labels': unique_labels,
-        'classification_report': classification_report(y_true, y_pred, labels=unique_labels, output_dict=True)
+        'classification_report': classification_report(y_true, y_pred, labels=unique_labels, output_dict=True),
+        'feature_importance': feature_importance
     }
     
     if total_prescriptions > 0:
@@ -257,7 +285,7 @@ def main():
     agent = DQNAgent(state_size, action_size)
     
     # Load trained model weights
-    model_path = "./best_antibiotic_agent.h5"
+    model_path = "checkpoints/simulated_explainable/best_antibiotic_agent.h5"
     if os.path.exists(model_path):
         print(f"Loading trained model from {model_path}")
         agent.model.load_weights(model_path)
@@ -278,7 +306,7 @@ def main():
         print(f"Prescription Accuracy: {metrics['prescription_accuracy']*100:.2f}%")
     
     # Create results directory
-    results_dir = 'results'
+    results_dir = 'results/simulated_explainable'
     os.makedirs(results_dir, exist_ok=True)
     
     # Save initial data distribution
@@ -358,6 +386,20 @@ def main():
             f.write(f"  Std: {np.std(q_values):.3f}\n")
             f.write(f"  Min: {np.min(q_values):.3f}\n")
             f.write(f"  Max: {np.max(q_values):.3f}\n")
+    
+    # Print feature importance
+    print("\nFeature Importance Analysis:")
+    for feature, importance in metrics['feature_importance'].items():
+        print(f"{feature}: {importance:.3f}")
+    
+    # Save feature importance plot
+    explainable_agent = ExplainableAgent(agent)
+    explainable_agent.initialize_explainer(test_env.features)
+    sample_state = test_env.reset()
+    explainable_agent.plot_feature_importance(
+        sample_state,
+        save_path=f"{results_dir}/feature_importance.png"
+    )
     
     print(f"Results saved to {results_dir}/")
 
