@@ -1,3 +1,4 @@
+# Acknowledgement: This reward function was adapted from the reward function in the paper "Antibiotic Stewardship with Deep Reinforcement Learning" by Chen et al.
 def calculate_reward(prescribed_antibiotic, actual_antibiotic, patient_outcome, patient_data):
     """
     Calculate reward for the prescribed antibiotic based on various factors.

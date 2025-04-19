@@ -8,61 +8,11 @@ import tensorflow as tf
 import os
 
 from data.data_loader import load_mimic_data, ANTIBIOTICS_LIST
-from utils.preprocessing import calculate_age, get_events_before_prescription, get_patient_diagnoses
+from utils.preprocessing import calculate_age, get_events_before_prescription, get_patient_diagnoses, preprocess_and_save_data
 from utils.reward import calculate_reward
-from utils.logging import log_dataset_distribution, log_evaluation_step, plot_confusion_matrix, plot_rewards, save_classification_report, plot_training_progress
+from utils.custom_logging import log_dataset_distribution, log_evaluation_step, plot_confusion_matrix, plot_rewards, save_classification_report, plot_training_progress
 from models.ppo_agent import PPOAgent
 from utils.explainability import analyze_feature_importance
-
-def prepare_prescription_contexts(antibiotic_prescriptions, microbiologyevents, labevents, diagnoses, patient_icu, sample_size=500):
-    """Prepare prescription contexts for training."""
-    print("Preparing prescription contexts...")
-    prescription_contexts = []
-    
-    sample_prescriptions = antibiotic_prescriptions.sample(min(sample_size, len(antibiotic_prescriptions)), random_state=42)
-    
-    for idx, row in sample_prescriptions.iterrows():
-        try:
-            organisms, resistance, labs = get_events_before_prescription(row, microbiologyevents, labevents)
-            diagnoses_info = get_patient_diagnoses(row, diagnoses)
-            
-            patient_info = patient_icu[
-                (patient_icu['subject_id'] == row['subject_id']) & 
-                (patient_icu['hadm_id'] == row['hadm_id'])
-            ]
-            
-            if not patient_info.empty:
-                context = {
-                    'subject_id': row['subject_id'],
-                    'hadm_id': row['hadm_id'],
-                    'icustay_id': row['icustay_id'] if 'icustay_id' in row else None,
-                    'age': patient_info['age'].values[0] if not patient_info.empty else 65,
-                    'gender': patient_info['gender'].values[0] if not patient_info.empty else 'M',
-                    'organisms': organisms,
-                    'resistance': resistance,
-                    'wbc': labs.get('wbc', None),
-                    'lactate': labs.get('lactate', None),
-                    'creatinine': labs.get('creatinine', None),
-                    'pneumonia': diagnoses_info.get('pneumonia', False),
-                    'uti': diagnoses_info.get('uti', False),
-                    'sepsis': diagnoses_info.get('sepsis', False),
-                    'skin_soft_tissue': diagnoses_info.get('skin_soft_tissue', False),
-                    'intra_abdominal': diagnoses_info.get('intra_abdominal', False),
-                    'meningitis': diagnoses_info.get('meningitis', False),
-                    'prescribed_antibiotic': row['drug_name_generic'] if not pd.isna(row['drug_name_generic']) else row['drug'],
-                    'los': patient_info['los'].values[0] if not patient_info.empty else 5.0,
-                    'expire_flag': patient_info['expire_flag'].values[0] if not patient_info.empty else 0
-                }
-                
-                prescription_contexts.append(context)
-                
-                if len(prescription_contexts) % 50 == 0:
-                    print(f"Processed {len(prescription_contexts)} prescriptions")
-                    
-        except Exception as e:
-            print(f"Error processing row {idx}: {e}")
-            
-    return prescription_contexts
 
 def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic, num_cols, cat_cols, X_original, batch_size=32, episodes=200):
     """Train the PPO agent.
@@ -81,11 +31,15 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
     """
     print("\nStarting PPO training...")
     
+    # Create checkpoints directory if it doesn't exist
+    os.makedirs('checkpoints', exist_ok=True)
+    
     # Log training data distribution
     class_names = [idx_to_antibiotic[i] for i in range(len(idx_to_antibiotic))]
     log_dataset_distribution(y_train, class_names, 'train_logs')
     
     best_reward = float('-inf')
+    best_accuracy = float('-inf')
     episode_rewards = []
     episode_accuracies = []
     
@@ -193,10 +147,16 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
         episode_rewards.append(total_reward)
         episode_accuracies.append(accuracy)
         
-        # Save checkpoint if best reward
+        # Save best model based on reward and accuracy
         if total_reward > best_reward:
             best_reward = total_reward
-            agent.save_model(episode)
+            agent.network.save_weights('checkpoints/best_reward_ppo_model.weights.h5')
+            print(f"Saved best model (reward) at episode {episode+1}")
+            
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            agent.network.save_weights('checkpoints/best_accuracy_ppo_model.weights.h5')
+            print(f"Saved best model (accuracy) at episode {episode+1}")
         
         # Print episode stats
         print(f"Episode: {episode+1}/{episodes}, Reward: {total_reward:.2f}, Accuracy: {accuracy:.4f}")
@@ -204,6 +164,10 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
         # Plot training progress every 10 episodes
         if (episode + 1) % 10 == 0:
             plot_training_progress(episode_rewards, episode_accuracies, 'train_logs')
+    
+    # Save final model after training
+    agent.network.save_weights('checkpoints/final_ppo_model.weights.h5')
+    print("\nSaved final model after training completion")
     
     # Final training progress plot
     plot_training_progress(episode_rewards, episode_accuracies, 'train_logs')
@@ -232,191 +196,75 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
     
     return agent
 
-def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic):
-    """Evaluate the trained PPO agent with detailed logging."""
-    print("\nEvaluating PPO model...")
+# def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic):
+#     """Evaluate the trained PPO agent with detailed logging."""
+#     print("\nEvaluating PPO model...")
     
-    # Log test data distribution
-    class_names = [idx_to_antibiotic[i] for i in range(len(idx_to_antibiotic))]
-    log_dataset_distribution(y_test, class_names, 'test_logs', phase='test')
+#     # Log test data distribution
+#     class_names = [idx_to_antibiotic[i] for i in range(len(idx_to_antibiotic))]
+#     log_dataset_distribution(y_test, class_names, 'test_logs', phase='test')
     
-    predictions = []
-    true_labels = []
-    all_rewards = []
+#     predictions = []
+#     true_labels = []
+#     all_rewards = []
     
-    for i, state in enumerate(X_test):
-        action, _ = agent.get_action(state, training=False)
-        predictions.append(action)
-        true_labels.append(y_test[i])
+#     for i, state in enumerate(X_test):
+#         action, _ = agent.get_action(state, training=False)
+#         predictions.append(action)
+#         true_labels.append(y_test[i])
         
-        predicted_antibiotic = idx_to_antibiotic[action]
-        actual_antibiotic = idx_to_antibiotic[y_test[i]]
+#         predicted_antibiotic = idx_to_antibiotic[action]
+#         actual_antibiotic = idx_to_antibiotic[y_test[i]]
         
-        # Default outcome and patient data
-        patient_outcome = {'expire_flag': 0, 'los': 5}
-        patient_data = {}
+#         # Default outcome and patient data
+#         patient_outcome = {'expire_flag': 0, 'los': 5}
+#         patient_data = {}
         
-        if i < len(prescription_contexts):
-            context = prescription_contexts[i]
-            patient_data = {
-                'has_staph': 1 if 'staph' in str(context.get('organisms', [])).lower() else 0,
-                'has_strep': 1 if 'strep' in str(context.get('organisms', [])).lower() else 0,
-                'has_e.coli': 1 if 'e.coli' in str(context.get('organisms', [])).lower() else 0,
-                'has_pseudomonas': 1 if 'pseudomonas' in str(context.get('organisms', [])).lower() else 0,
-                'has_klebsiella': 1 if 'klebsiella' in str(context.get('organisms', [])).lower() else 0,
-                'pneumonia': context.get('pneumonia', False),
-                'uti': context.get('uti', False),
-                'sepsis': context.get('sepsis', False),
-                'wbc': context.get('wbc', 10),
-                'lactate': context.get('lactate', 1.5),
-                'creatinine': context.get('creatinine', 1.0)
-            }
+#         if i < len(prescription_contexts):
+#             context = prescription_contexts[i]
+#             patient_data = {
+#                 'has_staph': 1 if 'staph' in str(context.get('organisms', [])).lower() else 0,
+#                 'has_strep': 1 if 'strep' in str(context.get('organisms', [])).lower() else 0,
+#                 'has_e.coli': 1 if 'e.coli' in str(context.get('organisms', [])).lower() else 0,
+#                 'has_pseudomonas': 1 if 'pseudomonas' in str(context.get('organisms', [])).lower() else 0,
+#                 'has_klebsiella': 1 if 'klebsiella' in str(context.get('organisms', [])).lower() else 0,
+#                 'pneumonia': context.get('pneumonia', False),
+#                 'uti': context.get('uti', False),
+#                 'sepsis': context.get('sepsis', False),
+#                 'wbc': context.get('wbc', 10),
+#                 'lactate': context.get('lactate', 1.5),
+#                 'creatinine': context.get('creatinine', 1.0)
+#             }
         
-        reward = calculate_reward(predicted_antibiotic, actual_antibiotic, patient_outcome, patient_data)
-        all_rewards.append(reward)
+#         reward = calculate_reward(predicted_antibiotic, actual_antibiotic, patient_outcome, patient_data)
+#         all_rewards.append(reward)
         
-        # Log evaluation step
-        log_evaluation_step(i, action, reward, predicted_antibiotic, actual_antibiotic, 'test_logs')
+#         # Log evaluation step
+#         log_evaluation_step(i, action, reward, predicted_antibiotic, actual_antibiotic, 'test_logs')
     
-    # Generate evaluation plots and reports
-    plot_confusion_matrix(true_labels, predictions, class_names, 'test_logs')
-    plot_rewards(all_rewards, 'test_logs')
-    save_classification_report(true_labels, predictions, class_names, 'test_logs')
+#     # Generate evaluation plots and reports
+#     plot_confusion_matrix(true_labels, predictions, class_names, 'test_logs')
+#     plot_rewards(all_rewards, 'test_logs')
+#     save_classification_report(true_labels, predictions, class_names, 'test_logs')
     
-    # Calculate metrics
-    accuracy = np.mean(np.array(predictions) == y_test)
-    avg_reward = np.mean(all_rewards)
+#     # Calculate metrics
+#     accuracy = np.mean(np.array(predictions) == y_test)
+#     avg_reward = np.mean(all_rewards)
     
-    print(f"Test Accuracy: {accuracy:.4f}")
-    print(f"Average Reward: {avg_reward:.4f}")
+#     print(f"Test Accuracy: {accuracy:.4f}")
+#     print(f"Average Reward: {avg_reward:.4f}")
     
-    return {
-        'accuracy': accuracy,
-        'avg_reward': avg_reward,
-        'predictions': predictions,
-        'rewards': all_rewards
-    }
+#     return {
+#         'accuracy': accuracy,
+#         'avg_reward': avg_reward,
+#         'predictions': predictions,
+#         'rewards': all_rewards
+#     }
 
 def main():
-    # Load data
-    (microbiologyevents, prescriptions, patients, labevents, 
-     diagnoses, icustays, chartevents) = load_mimic_data("dataset/mimic-iii-clinical-database-demo-1.4")
+
+    state_size, n_actions, X_train, X_test, y_train, y_test, prescription_contexts, idx_to_antibiotic, num_cols, cat_cols, X_original = preprocess_and_save_data("dataset/mimic-iii-clinical-database-demo-1.4")
     
-    # Filter antibiotic prescriptions
-    antibiotic_prescriptions = prescriptions[
-        prescriptions['drug_name_generic'].str.upper().str.contains('|'.join(ANTIBIOTICS_LIST), na=False) |
-        prescriptions['drug'].str.upper().str.contains('|'.join(ANTIBIOTICS_LIST), na=False)
-    ].copy()
-    
-    # Prepare patient ICU data
-    patients['dob'] = pd.to_datetime(patients['dob'])
-    patients['dod'] = pd.to_datetime(patients['dod'])
-    
-    patient_icu = pd.merge(
-        patients[['subject_id', 'gender', 'dob', 'expire_flag']], 
-        icustays[['subject_id', 'hadm_id', 'icustay_id', 'intime', 'outtime', 'los']], 
-        on='subject_id'
-    )
-    
-    patient_icu['age'] = patient_icu.apply(calculate_age, axis=1)
-    patient_icu = patient_icu[patient_icu['age'] >= 18]
-    
-    # Prepare prescription contexts
-    prescription_contexts = prepare_prescription_contexts(
-        antibiotic_prescriptions, microbiologyevents, labevents, diagnoses, patient_icu
-    )
-    
-    # Convert to DataFrame and prepare features
-    prescription_df = pd.DataFrame(prescription_contexts)
-    
-    # Create antibiotic_class column by extracting the antibiotic name from prescribed_antibiotic
-    def extract_antibiotic_class(prescribed_antibiotic):
-        if pd.isna(prescribed_antibiotic):
-            return 'UNKNOWN'
-        prescribed_upper = prescribed_antibiotic.upper()
-        for antibiotic in ANTIBIOTICS_LIST:
-            if antibiotic in prescribed_upper:
-                return antibiotic
-        return 'UNKNOWN'
-    
-    prescription_df['antibiotic_class'] = prescription_df['prescribed_antibiotic'].apply(extract_antibiotic_class)
-    
-    # Remove rows with unknown antibiotic class
-    prescription_df = prescription_df[prescription_df['antibiotic_class'] != 'UNKNOWN']
-    
-    if len(prescription_df) == 0:
-        raise ValueError("No valid prescriptions found after filtering. Check the antibiotic names and data.")
-    
-    # Feature engineering
-    for col in ['wbc', 'lactate', 'creatinine']:
-        if col in prescription_df.columns:
-            median_val = prescription_df[col].median()
-            if pd.isna(median_val):
-                median_val = 0.0
-            prescription_df[col] = prescription_df[col].fillna(median_val)
-        else:
-            prescription_df[col] = 0.0
-    
-    # Convert organism lists to binary features
-    def has_organism(row, organism_type):
-        if isinstance(row.get('organisms'), list):
-            return any(organism_type.lower() in str(org).lower() for org in row['organisms'])
-        return False
-    
-    common_organisms = ['staph', 'strep', 'e.coli', 'pseudomonas', 'klebsiella']
-    for org in common_organisms:
-        prescription_df[f'has_{org}'] = prescription_df.apply(lambda row: has_organism(row, org), axis=1)
-    
-    # Prepare features for model
-    columns_to_drop = ['subject_id', 'hadm_id', 'icustay_id', 'prescribed_antibiotic', 
-                      'organisms', 'resistance']
-    X_columns = [col for col in prescription_df.columns if col not in columns_to_drop + ['antibiotic_class']]
-    X = prescription_df[X_columns].copy()
-    y = prescription_df['antibiotic_class']
-    
-    # Convert boolean columns to int
-    bool_cols = X.select_dtypes(include=['bool']).columns
-    X[bool_cols] = X[bool_cols].astype(int)
-    
-    # Handle categorical and numerical features
-    cat_cols = ['gender']
-    num_cols = [col for col in X.columns if col not in cat_cols]
-    
-    for col in num_cols:
-        X[col] = pd.to_numeric(X[col], errors='coerce').fillna(0)
-    
-    X = X.fillna(0)
-    
-    # Setup preprocessing
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', StandardScaler(), num_cols),
-            ('cat', OneHotEncoder(handle_unknown='ignore'), cat_cols)
-        ])
-    
-    # Process features
-    X_processed = preprocessor.fit_transform(X)
-    X_processed = np.array(X_processed.toarray() if hasattr(X_processed, 'toarray') else X_processed)
-    
-    # Prepare action space
-    unique_antibiotics = prescription_df['antibiotic_class'].unique()
-    n_actions = len(unique_antibiotics)
-    antibiotic_to_idx = {ab: i for i, ab in enumerate(unique_antibiotics)}
-    idx_to_antibiotic = {i: ab for ab, i in antibiotic_to_idx.items()}
-    
-    print(f"Number of unique antibiotics: {n_actions}")
-    print("Antibiotic classes:", unique_antibiotics)
-    
-    # Convert targets to indices
-    y_indices = np.array([antibiotic_to_idx[ab] for ab in prescription_df['antibiotic_class']])
-    
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(X_processed, y_indices, test_size=0.2, random_state=42)
-    
-    print(f"Training with {X_train.shape[0]} samples, testing with {X_test.shape[0]} samples")
-    
-    # Initialize and train agent
-    state_size = X_processed.shape[1]
     ppo_agent = PPOAgent(state_size, n_actions)
     train_ppo(
         agent=ppo_agent,
@@ -426,16 +274,10 @@ def main():
         idx_to_antibiotic=idx_to_antibiotic,
         num_cols=num_cols,
         cat_cols=cat_cols,
-        X_original=X,
+        X_original=X_original,
         batch_size=32,
         episodes=200
     )
-
-    # Evaluate the model
-    evaluation_results = evaluate_ppo(ppo_agent, X_test, y_test, prescription_contexts, idx_to_antibiotic)
-    print("Evaluation finished \n")
-    print(f"Accuracy: {evaluation_results['accuracy']:.4f}")
-    print(f"Average Reward: {evaluation_results['avg_reward']:.4f}")
-
+    
 if __name__ == "__main__":
     main() 

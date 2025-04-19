@@ -1,34 +1,31 @@
 import numpy as np
+
+from data.data_loader import load_mimic_data, ANTIBIOTICS_LIST
+from utils.preprocessing import calculate_age, get_events_before_prescription, get_patient_diagnoses, preprocess_and_save_data
 from utils.reward import calculate_reward
+from utils.custom_logging import log_dataset_distribution, log_evaluation_step, plot_confusion_matrix, plot_rewards, save_classification_report, plot_training_progress
+from models.ppo_agent import PPOAgent
+from utils.explainability import analyze_feature_importance
 
 def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic):
-    """
-    Evaluate the trained PPO agent.
+    """Evaluate the trained PPO agent with detailed logging."""
+    print("\nEvaluating PPO model...")
     
-    Args:
-        agent: Trained PPO agent
-        X_test: Test features
-        y_test: Test labels
-        prescription_contexts: List of prescription contexts
-        idx_to_antibiotic: Dictionary mapping indices to antibiotic names
-        
-    Returns:
-        dict: Dictionary containing evaluation metrics
-    """
+    # Log test data distribution
+    class_names = [idx_to_antibiotic[i] for i in range(len(idx_to_antibiotic))]
+    log_dataset_distribution(y_test, class_names, 'test_logs', phase='test')
+    
     predictions = []
-    total_reward = 0
-    appropriate_coverage = 0
-    narrow_spectrum_used = 0
-    broad_spectrum_used = 0
-    
-    broad_spectrum = ['MEROPENEM', 'PIPERACILLIN', 'VANCOMYCIN']
+    true_labels = []
+    all_rewards = []
     
     for i, state in enumerate(X_test):
         action, _ = agent.get_action(state, training=False)
         predictions.append(action)
+        true_labels.append(y_test[i])
         
-        predicted_antibiotic = idx_to_antibiotic.get(action, "UNKNOWN")
-        actual_antibiotic = idx_to_antibiotic.get(y_test[i], "UNKNOWN")
+        predicted_antibiotic = idx_to_antibiotic[action]
+        actual_antibiotic = idx_to_antibiotic[y_test[i]]
         
         # Default outcome and patient data
         patient_outcome = {'expire_flag': 0, 'los': 5}
@@ -49,45 +46,50 @@ def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic
                 'lactate': context.get('lactate', 1.5),
                 'creatinine': context.get('creatinine', 1.0)
             }
-            
-            # Calculate clinical metrics
-            has_organism = False
-            covered = False
-            
-            for org_key, org_name in [('has_staph', 'Staphylococcus'),
-                                    ('has_strep', 'Streptococcus'),
-                                    ('has_e.coli', 'E. coli'),
-                                    ('has_pseudomonas', 'Pseudomonas'),
-                                    ('has_klebsiella', 'Klebsiella')]:
-                if patient_data.get(org_key, 0) == 1:
-                    has_organism = True
-                    if ((org_key == 'has_staph' and predicted_antibiotic in ['VANCOMYCIN', 'CEFAZOLIN']) or
-                        (org_key == 'has_strep' and predicted_antibiotic in ['AMOXICILLIN', 'CEFTRIAXONE']) or
-                        (org_key == 'has_e.coli' and predicted_antibiotic in ['CIPROFLOXACIN', 'CEFTRIAXONE']) or
-                        (org_key == 'has_pseudomonas' and predicted_antibiotic in ['PIPERACILLIN', 'MEROPENEM', 'CIPROFLOXACIN']) or
-                        (org_key == 'has_klebsiella' and predicted_antibiotic in ['CEFTRIAXONE', 'MEROPENEM'])):
-                        covered = True
-            
-            if has_organism and covered:
-                appropriate_coverage += 1
-            
-            if predicted_antibiotic in broad_spectrum:
-                broad_spectrum_used += 1
-            else:
-                narrow_spectrum_used += 1
         
         reward = calculate_reward(predicted_antibiotic, actual_antibiotic, patient_outcome, patient_data)
-        total_reward += reward
+        all_rewards.append(reward)
+        
+        # Log evaluation step
+        log_evaluation_step(i, action, reward, predicted_antibiotic, actual_antibiotic, 'test_logs')
     
-    accuracy = np.mean(predictions == y_test)
-    appropriate_coverage_rate = appropriate_coverage / max(1, sum(1 for context in prescription_contexts[:len(X_test)]
-                                             if any(org in str(context.get('organisms', [])).lower()
-                                                    for org in ['staph', 'strep', 'e.coli', 'pseudomonas', 'klebsiella'])))
-    narrow_spectrum_rate = narrow_spectrum_used / max(1, (narrow_spectrum_used + broad_spectrum_used))
+    # Generate evaluation plots and reports
+    plot_confusion_matrix(true_labels, predictions, class_names, 'test_logs')
+    plot_rewards(all_rewards, 'test_logs')
+    save_classification_report(true_labels, predictions, class_names, 'test_logs')
+    
+    # Calculate metrics
+    accuracy = np.mean(np.array(predictions) == y_test)
+    avg_reward = np.mean(all_rewards)
+    
+    print(f"Test Accuracy: {accuracy:.4f}")
+    print(f"Average Reward: {avg_reward:.4f}")
     
     return {
         'accuracy': accuracy,
-        'avg_reward': total_reward / len(X_test),
-        'appropriate_coverage_rate': appropriate_coverage_rate,
-        'narrow_spectrum_rate': narrow_spectrum_rate
-    } 
+        'avg_reward': avg_reward,
+        'predictions': predictions,
+        'rewards': all_rewards
+    }
+
+
+if __name__ == "__main__":
+    # Load data
+    state_size, n_actions, X_train, X_test, y_train, y_test, prescription_contexts, idx_to_antibiotic, num_cols, cat_cols, X_original = preprocess_and_save_data()
+    
+    # Initialize the agent
+    ppo_agent = PPOAgent(state_size, n_actions)
+    
+    # Build the model by making a dummy prediction
+    dummy_state = np.zeros((1, state_size), dtype=np.float32)
+    _ = ppo_agent.network(dummy_state)  # This will build the model
+    
+    # Now we can load the weights
+    print("Loading best accuracy model weights...")
+    ppo_agent.network.load_weights('checkpoints/best_accuracy_ppo_model.weights.h5')
+    # ppo_agent.network.load_weights('checkpoints/final_ppo_model.weights.h5')
+
+    evaluation_results = evaluate_ppo(ppo_agent, X_test, y_test, prescription_contexts, idx_to_antibiotic)
+    print("Evaluation finished \n")
+    print(f"Accuracy: {evaluation_results['accuracy']:.4f}")
+    print(f"Average Reward: {evaluation_results['avg_reward']:.4f}")
