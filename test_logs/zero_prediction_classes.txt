@@ -1,0 +1,12 @@
+Classes with no predictions:
+CEFEPIME: 8 true samples, 0 predictions
+CIPROFLOXACIN: 9 true samples, 0 predictions
+CEFTRIAXONE: 4 true samples, 0 predictions
+METRONIDAZOLE: 14 true samples, 0 predictions
+PIPERACILLIN: 8 true samples, 0 predictions
+LEVOFLOXACIN: 4 true samples, 0 predictions
+MEROPENEM: 9 true samples, 0 predictions
+AZITHROMYCIN: 7 true samples, 0 predictions
+CEFAZOLIN: 2 true samples, 0 predictions
+CLINDAMYCIN: 1 true samples, 0 predictions
+DOXYCYCLINE: 1 true samples, 0 predictions

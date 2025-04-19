@@ -3,16 +3,11 @@ __pycache__
 /venv
 .env
 results/
-*.png
-*.txt
-*.csv
-*.json
-*.yaml
 
 experiment.ipynb
 .qodo
 
 /dataset
 generate_simulated_data.py
-ppo_agent.py
+ppo_agent_test.py
 *.ipynb
