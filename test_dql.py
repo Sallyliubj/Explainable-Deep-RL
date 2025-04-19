@@ -9,7 +9,7 @@ from data_loader import DataLoader
 from data_preprocessor import preprocess_data
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
-from explainability import ExplainableAgent
+from explainability import ExplainableAgent, explain_recommendation
 
 def test_agent(agent, env, episodes=100, render=False):
     """
