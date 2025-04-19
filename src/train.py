@@ -428,7 +428,7 @@ def main():
         cat_cols=cat_cols,
         X_original=X,
         batch_size=32,
-        episodes=250
+        episodes=200
     )
 
     # Evaluate the model
