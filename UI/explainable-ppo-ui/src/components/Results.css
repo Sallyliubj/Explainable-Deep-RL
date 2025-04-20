@@ -1,0 +1,64 @@
+.result-card {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  font-family: Arial, sans-serif;
+}
+
+.bar-container {
+  margin-top: 15px;
+}
+
+.bar-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.bar-fill-wrapper {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+
+.bar-fill {
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: white;
+  font-size: 12px;
+  min-width: 80px;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.bar-fill.shap {
+  background-color: #4e79a7;
+}
+
+.bar-fill.attn {
+  background-color: #f28e2b;
+}
+
+.bar-fill.hybrid {
+  background-color: #76b7b2;
+}
+
+.results-list {
+  margin-top: 30px;
+  padding: 10px;
+} 
+
+/* Optional: make it responsive */
+@media (max-width: 768px) {
+  .bar-fill-wrapper {
+    flex-direction: column;
+  }
+  .bar-fill {
+    max-width: none;
+    width: 100%;
+  }
+}
