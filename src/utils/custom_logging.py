@@ -36,9 +36,21 @@ def log_dataset_distribution(y, class_names, output_dir, phase='train'):
     plt.close()
 
 def log_evaluation_step(step, action, reward, predicted_class, actual_class, output_dir):
-    """Log each evaluation step to a file."""
+    """
+    Log each evaluation step to a file.
+    
+    Args:
+        step: Current step number
+        action: Action taken
+        reward: Reward received
+        predicted_class: Predicted antibiotic class
+        actual_class: Actual antibiotic class
+        output_dir: Directory to save the log file
+    """
     ensure_dir(output_dir)
+    log_file = f'{output_dir}/evaluation_steps.csv'
 
+    # Create new data point
     step_data = pd.DataFrame({
         'Step': [step],
         'Action': [action],
@@ -47,11 +59,22 @@ def log_evaluation_step(step, action, reward, predicted_class, actual_class, out
         'Actual_Class': [actual_class]
     })
     
-    log_file = f'{output_dir}/evaluation_steps.csv'
-    if not os.path.exists(log_file):
-        step_data.to_csv(log_file, index=False)
+    # If file exists, read it and check if we're starting a new evaluation
+    if os.path.exists(log_file):
+        existing_data = pd.read_csv(log_file)
+        # If this step is 0 or less than the minimum step in existing data,
+        # we're starting a new evaluation, so we should clear the file
+        if step == 0 or (len(existing_data) > 0 and step <= existing_data['Step'].min()):
+            step_data.to_csv(log_file, index=False)  # Overwrite with new evaluation
+        else:
+            # Append only if this step hasn't been logged before
+            if not any((existing_data['Step'] == step) & 
+                      (existing_data['Actual_Class'] == actual_class) & 
+                      (existing_data['Predicted_Class'] == predicted_class)):
+                step_data.to_csv(log_file, mode='a', header=False, index=False)
     else:
-        step_data.to_csv(log_file, mode='a', header=False, index=False)
+        # If file doesn't exist, create it
+        step_data.to_csv(log_file, index=False)
 
 def plot_confusion_matrix(y_true, y_pred, class_names, output_dir):
     """Create and save confusion matrix plot."""
@@ -84,16 +107,14 @@ def plot_confusion_matrix(y_true, y_pred, class_names, output_dir):
     plt.savefig(f'{output_dir}/confusion_matrix.png')
     plt.close()
 
-def plot_rewards(rewards, output_dir, filename='rewards_plot.png', title='Rewards over Steps'):
+def plot_rewards(rewards, output_dir, filename='rewards_plot.png', title='Rewards for each Data Point'):
     """Create and save rewards plot."""
     ensure_dir(output_dir)
     
     plt.figure(figsize=(10, 6))
     plt.plot(rewards, label='Reward', alpha=0.6)
-    plt.plot(pd.Series(rewards).rolling(window=10).mean(), 
-             label='Moving Average (10 steps)', linewidth=2)
     plt.title(title)
-    plt.xlabel('Step')
+    plt.xlabel('Test Data')
     plt.ylabel('Reward')
     plt.legend()
     plt.grid(True, alpha=0.3)
