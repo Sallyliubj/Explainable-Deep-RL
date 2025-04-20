@@ -9,7 +9,7 @@ from data_loader import DataLoader
 from data_preprocessor import preprocess_data
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
-from explainability import ExplainableAgent, explain_recommendation
+from explainability import ExplainableAgent, explain_recommendation_v2
 
 def test_agent(agent, env, episodes=100, render=False):
     """
@@ -267,7 +267,7 @@ def main():
 
     # use simulated data
     print("Loading simulated test data...")
-    test_data = pd.read_csv("dataset/simulated/test_processed.csv")
+    test_data = pd.read_csv("../dataset/simulated/test_processed.csv")
     
     if test_data.empty:
         raise ValueError("Data loading failed - check simulated data files")
@@ -285,7 +285,7 @@ def main():
     agent = DQNAgent(state_size, action_size)
     
     # Load trained model weights
-    model_path = "checkpoints/simulated_explainable/best_antibiotic_agent.h5"
+    model_path = "../checkpoints/simulated_explainable/best_antibiotic_agent.h5"
     if os.path.exists(model_path):
         print(f"Loading trained model from {model_path}")
         agent.model.load_weights(model_path)
@@ -402,6 +402,38 @@ def main():
     )
     
     print(f"Results saved to {results_dir}/")
+
+    print("\nAntibiotic Recommendations with Explanations")
+    print("=" * 60)
+
+    # Get feature names
+    if hasattr(test_env, 'feature_names'):
+        feature_names = test_env.feature_names
+    else:
+        # Try to infer from ExplainableAgent if not present in env
+        feature_names = explainable_agent.feature_names
+
+    for episode in episode_data:
+        print(f"\nEpisode {episode['episode']}")
+        print("-" * 40)
+
+        state = episode['states'][0]
+        action = episode['actions'][0]
+        action_name = test_env.action_space[action]
+        q_values = agent.model.predict(np.atleast_2d(state.astype(np.float32)))[0][0]
+
+        try:
+            explanation = explain_recommendation_v2(
+                antibiotic=action_name,
+                q_value=q_values[action],
+                patient_state=state,
+                feature_names=feature_names
+            )
+        except Exception as e:
+            explanation = f"(Error generating explanation: {e})"
+
+        print(f"Step 1 - Recommended: {action_name}")
+        print(explanation)
 
 if __name__ == "__main__":
     main() 

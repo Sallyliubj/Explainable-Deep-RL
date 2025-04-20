@@ -229,3 +229,56 @@ def explain_recommendation(recommendation, patient_data):
         explanation += "- This is a narrower spectrum antibiotic.\n"
 
     return explanation
+
+def explain_recommendation_v2(antibiotic: str, q_value: float, patient_state: np.ndarray, feature_names: List[str]) -> str:
+    """
+    Generate a clinical explanation for the antibiotic recommendation based on the patient state and known feature names.
+
+    Args:
+        antibiotic (str): Recommended antibiotic.
+        q_value (float): Q-value for the recommendation.
+        patient_state (np.ndarray): The input feature vector.
+        feature_names (List[str]): Corresponding names of each feature in the state.
+
+    Returns:
+        str: Explanation string.
+    """
+    explanation = f"Recommended {antibiotic} (Q-value: {q_value:.4f}).\n"
+
+    # Create feature dictionary from state vector
+    patient_features = {name: val for name, val in zip(feature_names, patient_state)}
+
+    # Gender
+    if 'gender_F' in patient_features and patient_features['gender_F'] == 1:
+        explanation += "- Patient is female.\n"
+    elif 'gender_M' in patient_features and patient_features['gender_M'] == 1:
+        explanation += "- Patient is male.\n"
+
+    # LOS (length of stay)
+    los = patient_features.get('length_of_stay', None)
+    if los is not None:
+        if los > 7:
+            explanation += f"- Prolonged hospital stay (LOS = {los:.1f} days) may indicate a complicated case.\n"
+        else:
+            explanation += f"- Shorter hospital stay (LOS = {los:.1f} days) suggests stable condition.\n"
+    else:
+        explanation += "- Length of stay data unavailable.\n"
+
+    # Mortality
+    if patient_features.get('mortality', 0) == 1:
+        explanation += "- Patient has died in hospital; consider aggressive treatment retrospectively.\n"
+    else:
+        explanation += "- Patient survived; previous treatment may have been effective.\n"
+
+    # Custom logic: associate specific antibiotics with clinical patterns
+    broad_spectrum = ['meropenem', 'piperacillin/tazobactam', 'vancomycin']
+    if antibiotic.lower() in broad_spectrum:
+        explanation += "- This is a broad-spectrum antibiotic.\n"
+        if los is not None and los < 3 and patient_features.get('mortality', 0) == 0:
+            explanation += "  Consider de-escalation if patient is improving.\n"
+    else:
+        explanation += "- This is a narrower-spectrum antibiotic.\n"
+        if los is not None and los > 7 and patient_features.get('mortality', 0) == 1:
+            explanation += "  Consider escalation if broad coverage was not initially used.\n"
+
+    return explanation
