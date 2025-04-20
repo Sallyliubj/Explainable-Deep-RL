@@ -1,48 +1,48 @@
 step,predicted_antibiotic,actual_antibiotic,score,explanation
-1,VANCOMYCIN,VANCOMYCIN,0.9780,Recommended VANCOMYCIN (Score: 0.9780).
+1,VANCOMYCIN,VANCOMYCIN,0.9684,Recommended VANCOMYCIN (Score: 0.9684).
 - This is a broad-spectrum antibiotic.
 
-2,VANCOMYCIN,CLINDAMYCIN,0.9138,Recommended VANCOMYCIN (Score: 0.9138).
+2,VANCOMYCIN,CLINDAMYCIN,0.9135,Recommended VANCOMYCIN (Score: 0.9135).
 - Elevated lactate (8.3) suggests hypoperfusion.
 - This is a broad-spectrum antibiotic.
 
-3,VANCOMYCIN,MEROPENEM,0.9531,Recommended VANCOMYCIN (Score: 0.9531).
+3,VANCOMYCIN,MEROPENEM,0.9315,Recommended VANCOMYCIN (Score: 0.9315).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-4,VANCOMYCIN,DOXYCYCLINE,0.9623,Recommended VANCOMYCIN (Score: 0.9623).
+4,VANCOMYCIN,DOXYCYCLINE,0.9571,Recommended VANCOMYCIN (Score: 0.9571).
 - Patient has UTI.
 - This is a broad-spectrum antibiotic.
 
-5,VANCOMYCIN,VANCOMYCIN,0.9560,Recommended VANCOMYCIN (Score: 0.9560).
+5,VANCOMYCIN,VANCOMYCIN,0.9487,Recommended VANCOMYCIN (Score: 0.9487).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - Elevated creatinine (1.7) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-6,VANCOMYCIN,PIPERACILLIN,0.9967,Recommended VANCOMYCIN (Score: 0.9967).
+6,VANCOMYCIN,PIPERACILLIN,0.9885,Recommended VANCOMYCIN (Score: 0.9885).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-7,VANCOMYCIN,CIPROFLOXACIN,0.9630,Recommended VANCOMYCIN (Score: 0.9630).
+7,VANCOMYCIN,CIPROFLOXACIN,0.9565,Recommended VANCOMYCIN (Score: 0.9565).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-8,VANCOMYCIN,MEROPENEM,0.9022,Recommended VANCOMYCIN (Score: 0.9022).
+8,VANCOMYCIN,MEROPENEM,0.8985,Recommended VANCOMYCIN (Score: 0.8985).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-9,VANCOMYCIN,CEFAZOLIN,0.9402,Recommended VANCOMYCIN (Score: 0.9402).
+9,VANCOMYCIN,CEFAZOLIN,0.9381,Recommended VANCOMYCIN (Score: 0.9381).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-10,VANCOMYCIN,CEFEPIME,0.9830,Recommended VANCOMYCIN (Score: 0.9830).
+10,VANCOMYCIN,CEFEPIME,0.9729,Recommended VANCOMYCIN (Score: 0.9729).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has sepsis.
@@ -50,45 +50,45 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - Elevated lactate (2.8) suggests hypoperfusion.
 - This is a broad-spectrum antibiotic.
 
-11,VANCOMYCIN,LEVOFLOXACIN,0.9453,Recommended VANCOMYCIN (Score: 0.9453).
+11,VANCOMYCIN,LEVOFLOXACIN,0.9251,Recommended VANCOMYCIN (Score: 0.9251).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - Elevated lactate (3.9) suggests hypoperfusion.
 - Elevated creatinine (3.4) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-12,VANCOMYCIN,CEFEPIME,0.9952,Recommended VANCOMYCIN (Score: 0.9952).
+12,VANCOMYCIN,CEFEPIME,0.9848,Recommended VANCOMYCIN (Score: 0.9848).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - Elevated creatinine (1.7) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-13,VANCOMYCIN,VANCOMYCIN,0.9549,Recommended VANCOMYCIN (Score: 0.9549).
+13,VANCOMYCIN,VANCOMYCIN,0.9316,Recommended VANCOMYCIN (Score: 0.9316).
 - Elevated creatinine (2.0) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-14,VANCOMYCIN,VANCOMYCIN,0.9699,Recommended VANCOMYCIN (Score: 0.9699).
+14,VANCOMYCIN,VANCOMYCIN,0.9571,Recommended VANCOMYCIN (Score: 0.9571).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - Elevated creatinine (3.4) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-15,VANCOMYCIN,VANCOMYCIN,0.9578,Recommended VANCOMYCIN (Score: 0.9578).
+15,VANCOMYCIN,VANCOMYCIN,0.9458,Recommended VANCOMYCIN (Score: 0.9458).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-16,VANCOMYCIN,METRONIDAZOLE,0.9999,Recommended VANCOMYCIN (Score: 0.9999).
+16,VANCOMYCIN,METRONIDAZOLE,0.9992,Recommended VANCOMYCIN (Score: 0.9992).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-17,VANCOMYCIN,AZITHROMYCIN,0.9373,Recommended VANCOMYCIN (Score: 0.9373).
+17,VANCOMYCIN,AZITHROMYCIN,0.9358,Recommended VANCOMYCIN (Score: 0.9358).
 - Elevated lactate (3.4) suggests hypoperfusion.
 - This is a broad-spectrum antibiotic.
 
-18,VANCOMYCIN,MEROPENEM,0.9481,Recommended VANCOMYCIN (Score: 0.9481).
+18,VANCOMYCIN,MEROPENEM,0.9416,Recommended VANCOMYCIN (Score: 0.9416).
 - Elevated creatinine (2.0) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
@@ -96,11 +96,11 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-20,VANCOMYCIN,VANCOMYCIN,0.9944,Recommended VANCOMYCIN (Score: 0.9944).
+20,VANCOMYCIN,VANCOMYCIN,0.9844,Recommended VANCOMYCIN (Score: 0.9844).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-21,VANCOMYCIN,CEFTRIAXONE,0.9134,Recommended VANCOMYCIN (Score: 0.9134).
+21,VANCOMYCIN,CEFTRIAXONE,0.9008,Recommended VANCOMYCIN (Score: 0.9008).
 - Elevated lactate (2.4) suggests hypoperfusion.
 - This is a broad-spectrum antibiotic.
 
@@ -108,7 +108,7 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-23,VANCOMYCIN,LEVOFLOXACIN,0.9156,Recommended VANCOMYCIN (Score: 0.9156).
+23,VANCOMYCIN,LEVOFLOXACIN,0.9119,Recommended VANCOMYCIN (Score: 0.9119).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
@@ -116,7 +116,7 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-24,VANCOMYCIN,PIPERACILLIN,0.9544,Recommended VANCOMYCIN (Score: 0.9544).
+24,VANCOMYCIN,PIPERACILLIN,0.9493,Recommended VANCOMYCIN (Score: 0.9493).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
@@ -124,12 +124,12 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-25,VANCOMYCIN,CEFAZOLIN,0.9154,Recommended VANCOMYCIN (Score: 0.9154).
+25,VANCOMYCIN,CEFAZOLIN,0.9120,Recommended VANCOMYCIN (Score: 0.9120).
 - Patient has pneumonia.
 - Elevated creatinine (4.6) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-26,VANCOMYCIN,CEFEPIME,0.9258,Recommended VANCOMYCIN (Score: 0.9258).
+26,VANCOMYCIN,CEFEPIME,0.9263,Recommended VANCOMYCIN (Score: 0.9263).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
@@ -141,52 +141,52 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-28,VANCOMYCIN,VANCOMYCIN,0.9347,Recommended VANCOMYCIN (Score: 0.9347).
+28,VANCOMYCIN,VANCOMYCIN,0.9269,Recommended VANCOMYCIN (Score: 0.9269).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-29,VANCOMYCIN,VANCOMYCIN,0.9364,Recommended VANCOMYCIN (Score: 0.9364).
+29,VANCOMYCIN,VANCOMYCIN,0.9256,Recommended VANCOMYCIN (Score: 0.9256).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-30,VANCOMYCIN,VANCOMYCIN,0.9930,Recommended VANCOMYCIN (Score: 0.9930).
+30,VANCOMYCIN,VANCOMYCIN,0.9876,Recommended VANCOMYCIN (Score: 0.9876).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-31,VANCOMYCIN,VANCOMYCIN,0.9977,Recommended VANCOMYCIN (Score: 0.9977).
+31,VANCOMYCIN,VANCOMYCIN,0.9901,Recommended VANCOMYCIN (Score: 0.9901).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-32,VANCOMYCIN,AZITHROMYCIN,0.9415,Recommended VANCOMYCIN (Score: 0.9415).
+32,VANCOMYCIN,AZITHROMYCIN,0.9272,Recommended VANCOMYCIN (Score: 0.9272).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - Elevated creatinine (1.7) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-33,VANCOMYCIN,METRONIDAZOLE,0.9314,Recommended VANCOMYCIN (Score: 0.9314).
+33,VANCOMYCIN,METRONIDAZOLE,0.9247,Recommended VANCOMYCIN (Score: 0.9247).
 - Elevated creatinine (2.2) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-34,VANCOMYCIN,MEROPENEM,0.9321,Recommended VANCOMYCIN (Score: 0.9321).
+34,VANCOMYCIN,MEROPENEM,0.9250,Recommended VANCOMYCIN (Score: 0.9250).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-35,VANCOMYCIN,VANCOMYCIN,0.9304,Recommended VANCOMYCIN (Score: 0.9304).
+35,VANCOMYCIN,VANCOMYCIN,0.9250,Recommended VANCOMYCIN (Score: 0.9250).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-36,VANCOMYCIN,CEFTRIAXONE,0.9398,Recommended VANCOMYCIN (Score: 0.9398).
+36,VANCOMYCIN,CEFTRIAXONE,0.9355,Recommended VANCOMYCIN (Score: 0.9355).
 - This is a broad-spectrum antibiotic.
 
-37,VANCOMYCIN,CEFEPIME,0.9166,Recommended VANCOMYCIN (Score: 0.9166).
+37,VANCOMYCIN,CEFEPIME,0.9150,Recommended VANCOMYCIN (Score: 0.9150).
 - Patient has Klebsiella organism(s).
 - This is a broad-spectrum antibiotic.
 
-38,VANCOMYCIN,AZITHROMYCIN,0.9615,Recommended VANCOMYCIN (Score: 0.9615).
+38,VANCOMYCIN,AZITHROMYCIN,0.9526,Recommended VANCOMYCIN (Score: 0.9526).
 - Patient has Staphylococcus; Pseudomonas organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - This is a broad-spectrum antibiotic.
@@ -196,16 +196,16 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - This is a broad-spectrum antibiotic.
 
-40,VANCOMYCIN,CIPROFLOXACIN,0.9661,Recommended VANCOMYCIN (Score: 0.9661).
+40,VANCOMYCIN,CIPROFLOXACIN,0.9507,Recommended VANCOMYCIN (Score: 0.9507).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-41,VANCOMYCIN,VANCOMYCIN,0.9480,Recommended VANCOMYCIN (Score: 0.9480).
+41,VANCOMYCIN,VANCOMYCIN,0.9415,Recommended VANCOMYCIN (Score: 0.9415).
 - This is a broad-spectrum antibiotic.
 
-42,VANCOMYCIN,MEROPENEM,0.9947,Recommended VANCOMYCIN (Score: 0.9947).
+42,VANCOMYCIN,MEROPENEM,0.9866,Recommended VANCOMYCIN (Score: 0.9866).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
@@ -215,32 +215,32 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-44,VANCOMYCIN,VANCOMYCIN,0.9840,Recommended VANCOMYCIN (Score: 0.9840).
+44,VANCOMYCIN,VANCOMYCIN,0.9741,Recommended VANCOMYCIN (Score: 0.9741).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
 - Elevated lactate (2.9) suggests hypoperfusion.
 - This is a broad-spectrum antibiotic.
 
-45,VANCOMYCIN,METRONIDAZOLE,0.9283,Recommended VANCOMYCIN (Score: 0.9283).
+45,VANCOMYCIN,METRONIDAZOLE,0.9278,Recommended VANCOMYCIN (Score: 0.9278).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-46,VANCOMYCIN,PIPERACILLIN,0.8929,Recommended VANCOMYCIN (Score: 0.8929).
+46,VANCOMYCIN,PIPERACILLIN,0.8859,Recommended VANCOMYCIN (Score: 0.8859).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-47,VANCOMYCIN,AZITHROMYCIN,0.8943,Recommended VANCOMYCIN (Score: 0.8943).
+47,VANCOMYCIN,AZITHROMYCIN,0.8875,Recommended VANCOMYCIN (Score: 0.8875).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-48,VANCOMYCIN,METRONIDAZOLE,0.9673,Recommended VANCOMYCIN (Score: 0.9673).
+48,VANCOMYCIN,METRONIDAZOLE,0.9604,Recommended VANCOMYCIN (Score: 0.9604).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-49,VANCOMYCIN,AZITHROMYCIN,0.9498,Recommended VANCOMYCIN (Score: 0.9498).
+49,VANCOMYCIN,AZITHROMYCIN,0.9320,Recommended VANCOMYCIN (Score: 0.9320).
 - This is a broad-spectrum antibiotic.
 
 50,VANCOMYCIN,LEVOFLOXACIN,1.0000,Recommended VANCOMYCIN (Score: 1.0000).
@@ -248,37 +248,37 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-51,VANCOMYCIN,VANCOMYCIN,0.9809,Recommended VANCOMYCIN (Score: 0.9809).
+51,VANCOMYCIN,VANCOMYCIN,0.9710,Recommended VANCOMYCIN (Score: 0.9710).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-52,VANCOMYCIN,METRONIDAZOLE,0.9830,Recommended VANCOMYCIN (Score: 0.9830).
+52,VANCOMYCIN,METRONIDAZOLE,0.9729,Recommended VANCOMYCIN (Score: 0.9729).
 - This is a broad-spectrum antibiotic.
 
-53,VANCOMYCIN,PIPERACILLIN,0.9192,Recommended VANCOMYCIN (Score: 0.9192).
+53,VANCOMYCIN,PIPERACILLIN,0.9174,Recommended VANCOMYCIN (Score: 0.9174).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-54,VANCOMYCIN,CIPROFLOXACIN,1.0000,Recommended VANCOMYCIN (Score: 1.0000).
+54,VANCOMYCIN,CIPROFLOXACIN,0.9999,Recommended VANCOMYCIN (Score: 0.9999).
 - Elevated creatinine (2.5) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-55,VANCOMYCIN,CIPROFLOXACIN,0.9355,Recommended VANCOMYCIN (Score: 0.9355).
+55,VANCOMYCIN,CIPROFLOXACIN,0.9313,Recommended VANCOMYCIN (Score: 0.9313).
 - Patient has Pseudomonas organism(s).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-56,VANCOMYCIN,VANCOMYCIN,0.9022,Recommended VANCOMYCIN (Score: 0.9022).
+56,VANCOMYCIN,VANCOMYCIN,0.8985,Recommended VANCOMYCIN (Score: 0.8985).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-57,VANCOMYCIN,METRONIDAZOLE,0.9446,Recommended VANCOMYCIN (Score: 0.9446).
+57,VANCOMYCIN,METRONIDAZOLE,0.9194,Recommended VANCOMYCIN (Score: 0.9194).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
@@ -286,192 +286,192 @@ step,predicted_antibiotic,actual_antibiotic,score,explanation
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-58,VANCOMYCIN,METRONIDAZOLE,0.9547,Recommended VANCOMYCIN (Score: 0.9547).
+58,VANCOMYCIN,METRONIDAZOLE,0.9362,Recommended VANCOMYCIN (Score: 0.9362).
 - Patient has pneumonia.
 - Elevated lactate (2.1) suggests hypoperfusion.
 - Elevated creatinine (2.7) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-59,VANCOMYCIN,PIPERACILLIN,0.9496,Recommended VANCOMYCIN (Score: 0.9496).
+59,VANCOMYCIN,PIPERACILLIN,0.9313,Recommended VANCOMYCIN (Score: 0.9313).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-60,VANCOMYCIN,VANCOMYCIN,0.9476,Recommended VANCOMYCIN (Score: 0.9476).
+60,VANCOMYCIN,VANCOMYCIN,0.9450,Recommended VANCOMYCIN (Score: 0.9450).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-61,VANCOMYCIN,PIPERACILLIN,0.9358,Recommended VANCOMYCIN (Score: 0.9358).
+61,VANCOMYCIN,PIPERACILLIN,0.9288,Recommended VANCOMYCIN (Score: 0.9288).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-62,VANCOMYCIN,VANCOMYCIN,0.9476,Recommended VANCOMYCIN (Score: 0.9476).
+62,VANCOMYCIN,VANCOMYCIN,0.9436,Recommended VANCOMYCIN (Score: 0.9436).
 - Elevated creatinine (2.2) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-63,VANCOMYCIN,VANCOMYCIN,0.9364,Recommended VANCOMYCIN (Score: 0.9364).
+63,VANCOMYCIN,VANCOMYCIN,0.9256,Recommended VANCOMYCIN (Score: 0.9256).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-64,VANCOMYCIN,AZITHROMYCIN,0.9429,Recommended VANCOMYCIN (Score: 0.9429).
+64,VANCOMYCIN,AZITHROMYCIN,0.9373,Recommended VANCOMYCIN (Score: 0.9373).
 - Patient has pneumonia.
 - Elevated creatinine (2.5) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-65,VANCOMYCIN,VANCOMYCIN,0.9706,Recommended VANCOMYCIN (Score: 0.9706).
+65,VANCOMYCIN,VANCOMYCIN,0.9523,Recommended VANCOMYCIN (Score: 0.9523).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-66,VANCOMYCIN,CIPROFLOXACIN,0.9291,Recommended VANCOMYCIN (Score: 0.9291).
+66,VANCOMYCIN,CIPROFLOXACIN,0.9280,Recommended VANCOMYCIN (Score: 0.9280).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-67,VANCOMYCIN,CIPROFLOXACIN,0.9373,Recommended VANCOMYCIN (Score: 0.9373).
+67,VANCOMYCIN,CIPROFLOXACIN,0.9358,Recommended VANCOMYCIN (Score: 0.9358).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-68,VANCOMYCIN,METRONIDAZOLE,0.9364,Recommended VANCOMYCIN (Score: 0.9364).
+68,VANCOMYCIN,METRONIDAZOLE,0.9256,Recommended VANCOMYCIN (Score: 0.9256).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-69,VANCOMYCIN,VANCOMYCIN,0.9946,Recommended VANCOMYCIN (Score: 0.9946).
+69,VANCOMYCIN,VANCOMYCIN,0.9851,Recommended VANCOMYCIN (Score: 0.9851).
 - Elevated lactate (2.7) suggests hypoperfusion.
 - This is a broad-spectrum antibiotic.
 
-70,VANCOMYCIN,PIPERACILLIN,0.9291,Recommended VANCOMYCIN (Score: 0.9291).
+70,VANCOMYCIN,PIPERACILLIN,0.9205,Recommended VANCOMYCIN (Score: 0.9205).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-71,VANCOMYCIN,LEVOFLOXACIN,0.9454,Recommended VANCOMYCIN (Score: 0.9454).
+71,VANCOMYCIN,LEVOFLOXACIN,0.9426,Recommended VANCOMYCIN (Score: 0.9426).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - Elevated lactate (7.1) suggests hypoperfusion.
 - Elevated creatinine (1.6) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-72,VANCOMYCIN,METRONIDAZOLE,0.9218,Recommended VANCOMYCIN (Score: 0.9218).
+72,VANCOMYCIN,METRONIDAZOLE,0.9210,Recommended VANCOMYCIN (Score: 0.9210).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - Elevated creatinine (1.6) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-73,VANCOMYCIN,CEFEPIME,0.9834,Recommended VANCOMYCIN (Score: 0.9834).
+73,VANCOMYCIN,CEFEPIME,0.9734,Recommended VANCOMYCIN (Score: 0.9734).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-74,VANCOMYCIN,MEROPENEM,0.9967,Recommended VANCOMYCIN (Score: 0.9967).
+74,VANCOMYCIN,MEROPENEM,0.9886,Recommended VANCOMYCIN (Score: 0.9886).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-75,VANCOMYCIN,VANCOMYCIN,0.9951,Recommended VANCOMYCIN (Score: 0.9951).
+75,VANCOMYCIN,VANCOMYCIN,0.9856,Recommended VANCOMYCIN (Score: 0.9856).
 - Patient has Klebsiella organism(s).
 - This is a broad-spectrum antibiotic.
 
-76,VANCOMYCIN,VANCOMYCIN,0.9605,Recommended VANCOMYCIN (Score: 0.9605).
+76,VANCOMYCIN,VANCOMYCIN,0.9360,Recommended VANCOMYCIN (Score: 0.9360).
 - This is a broad-spectrum antibiotic.
 
-77,VANCOMYCIN,CEFEPIME,0.9263,Recommended VANCOMYCIN (Score: 0.9263).
+77,VANCOMYCIN,CEFEPIME,0.9205,Recommended VANCOMYCIN (Score: 0.9205).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-78,VANCOMYCIN,CIPROFLOXACIN,1.0000,Recommended VANCOMYCIN (Score: 1.0000).
+78,VANCOMYCIN,CIPROFLOXACIN,0.9999,Recommended VANCOMYCIN (Score: 0.9999).
 - This is a broad-spectrum antibiotic.
 
 79,VANCOMYCIN,METRONIDAZOLE,1.0000,Recommended VANCOMYCIN (Score: 1.0000).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-80,VANCOMYCIN,CIPROFLOXACIN,0.9239,Recommended VANCOMYCIN (Score: 0.9239).
+80,VANCOMYCIN,CIPROFLOXACIN,0.9260,Recommended VANCOMYCIN (Score: 0.9260).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - This is a broad-spectrum antibiotic.
 
-81,VANCOMYCIN,METRONIDAZOLE,0.9933,Recommended VANCOMYCIN (Score: 0.9933).
+81,VANCOMYCIN,METRONIDAZOLE,0.9882,Recommended VANCOMYCIN (Score: 0.9882).
 - This is a broad-spectrum antibiotic.
 
-82,VANCOMYCIN,CIPROFLOXACIN,0.9423,Recommended VANCOMYCIN (Score: 0.9423).
+82,VANCOMYCIN,CIPROFLOXACIN,0.9390,Recommended VANCOMYCIN (Score: 0.9390).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-83,VANCOMYCIN,VANCOMYCIN,0.9782,Recommended VANCOMYCIN (Score: 0.9782).
+83,VANCOMYCIN,VANCOMYCIN,0.9696,Recommended VANCOMYCIN (Score: 0.9696).
 - Patient has Streptococcus organism(s).
 - This is a broad-spectrum antibiotic.
 
-84,VANCOMYCIN,METRONIDAZOLE,0.9951,Recommended VANCOMYCIN (Score: 0.9951).
+84,VANCOMYCIN,METRONIDAZOLE,0.9856,Recommended VANCOMYCIN (Score: 0.9856).
 - This is a broad-spectrum antibiotic.
 
-85,VANCOMYCIN,VANCOMYCIN,0.9417,Recommended VANCOMYCIN (Score: 0.9417).
+85,VANCOMYCIN,VANCOMYCIN,0.9366,Recommended VANCOMYCIN (Score: 0.9366).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-86,VANCOMYCIN,CEFEPIME,0.9964,Recommended VANCOMYCIN (Score: 0.9964).
+86,VANCOMYCIN,CEFEPIME,0.9855,Recommended VANCOMYCIN (Score: 0.9855).
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-87,VANCOMYCIN,VANCOMYCIN,0.9706,Recommended VANCOMYCIN (Score: 0.9706).
+87,VANCOMYCIN,VANCOMYCIN,0.9523,Recommended VANCOMYCIN (Score: 0.9523).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has pneumonia.
 - This is a broad-spectrum antibiotic.
 
-88,VANCOMYCIN,VANCOMYCIN,0.9173,Recommended VANCOMYCIN (Score: 0.9173).
+88,VANCOMYCIN,VANCOMYCIN,0.9153,Recommended VANCOMYCIN (Score: 0.9153).
 - Patient has pneumonia.
 - Elevated creatinine (2.8) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-89,VANCOMYCIN,CEFTRIAXONE,0.8943,Recommended VANCOMYCIN (Score: 0.8943).
+89,VANCOMYCIN,CEFTRIAXONE,0.8875,Recommended VANCOMYCIN (Score: 0.8875).
 - Patient has UTI.
 - This is a broad-spectrum antibiotic.
 
-90,VANCOMYCIN,VANCOMYCIN,0.9315,Recommended VANCOMYCIN (Score: 0.9315).
+90,VANCOMYCIN,VANCOMYCIN,0.9258,Recommended VANCOMYCIN (Score: 0.9258).
 - Elevated creatinine (1.8) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
 91,VANCOMYCIN,VANCOMYCIN,1.0000,Recommended VANCOMYCIN (Score: 1.0000).
 - This is a broad-spectrum antibiotic.
 
-92,VANCOMYCIN,MEROPENEM,0.9947,Recommended VANCOMYCIN (Score: 0.9947).
+92,VANCOMYCIN,MEROPENEM,0.9866,Recommended VANCOMYCIN (Score: 0.9866).
 - Patient has pneumonia.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-93,VANCOMYCIN,VANCOMYCIN,0.8956,Recommended VANCOMYCIN (Score: 0.8956).
+93,VANCOMYCIN,VANCOMYCIN,0.8890,Recommended VANCOMYCIN (Score: 0.8890).
 - Patient has Staphylococcus; Pseudomonas; Klebsiella organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-94,VANCOMYCIN,VANCOMYCIN,0.9954,Recommended VANCOMYCIN (Score: 0.9954).
+94,VANCOMYCIN,VANCOMYCIN,0.9857,Recommended VANCOMYCIN (Score: 0.9857).
 - Patient has Staphylococcus organism(s).
 - VANCOMYCIN provides good coverage for Staphylococcus.
 - This is a broad-spectrum antibiotic.
 
-95,VANCOMYCIN,VANCOMYCIN,0.9621,Recommended VANCOMYCIN (Score: 0.9621).
+95,VANCOMYCIN,VANCOMYCIN,0.9571,Recommended VANCOMYCIN (Score: 0.9571).
 - Elevated creatinine (1.7) may affect antibiotic dosing.
 - This is a broad-spectrum antibiotic.
 
-96,VANCOMYCIN,AZITHROMYCIN,0.9703,Recommended VANCOMYCIN (Score: 0.9703).
+96,VANCOMYCIN,AZITHROMYCIN,0.9542,Recommended VANCOMYCIN (Score: 0.9542).
 - Patient has pneumonia.
 - Elevated WBC (13.0) suggests infection.
 - This is a broad-spectrum antibiotic.
 
-97,VANCOMYCIN,MEROPENEM,0.9953,Recommended VANCOMYCIN (Score: 0.9953).
+97,VANCOMYCIN,MEROPENEM,0.9876,Recommended VANCOMYCIN (Score: 0.9876).
 - Patient has sepsis.
 - VANCOMYCIN is recommended for sepsis treatment.
 - This is a broad-spectrum antibiotic.
 
-98,VANCOMYCIN,METRONIDAZOLE,0.9711,Recommended VANCOMYCIN (Score: 0.9711).
+98,VANCOMYCIN,METRONIDAZOLE,0.9547,Recommended VANCOMYCIN (Score: 0.9547).
 - Elevated lactate (3.2) suggests hypoperfusion.
 - This is a broad-spectrum antibiotic.
 
