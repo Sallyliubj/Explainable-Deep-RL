@@ -313,14 +313,14 @@ def explain_recommendation(recommendation, patient_data):
     Generate a clinical explanation for the antibiotic recommendation.
 
     Args:
-        recommendation (tuple): (antibiotic_name, q_value or score placeholder).
+        recommendation (tuple): (antibiotic_name, probability or score placeholder).
         patient_data (dict): Dictionary containing patient context features.
 
     Returns:
         str: Explanation string.
     """
-    antibiotic, q_value = recommendation
-    explanation = f"Recommended {antibiotic} (Score: {q_value:.4f}).\n"
+    antibiotic, prob = recommendation
+    explanation = f"Recommended {antibiotic} (Score: {prob:.4f}).\n"
 
     organisms = []
     for org_key, org_name in [

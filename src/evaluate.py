@@ -5,9 +5,9 @@ from utils.preprocessing import calculate_age, get_events_before_prescription, g
 from utils.reward import calculate_reward
 from utils.custom_logging import log_dataset_distribution, log_evaluation_step, plot_confusion_matrix, plot_rewards, save_classification_report, plot_training_progress
 from models.ppo_agent import PPOAgent
-from utils.explainability import analyze_feature_importance
+from utils.explainability import analyze_feature_importance, explain_recommendation
 
-def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic):
+def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic, explanation_file_path):
     """Evaluate the trained PPO agent with detailed logging."""
     print("\nEvaluating PPO model...")
     
@@ -20,28 +20,12 @@ def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic
     all_rewards = []
     
     for i, state in enumerate(X_test):
-        action, _ = agent.get_action(state, training=False)
+        action, probs = agent.get_action(state, training=False)
         predictions.append(action)
         true_labels.append(y_test[i])
         
         predicted_antibiotic = idx_to_antibiotic[action]
         actual_antibiotic = idx_to_antibiotic[y_test[i]]
-
-        from utils.explainability import explain_recommendation  # or wherever it's defined
-
-        try:
-            explanation = explain_recommendation(
-                recommendation=(predicted_antibiotic, 0),  # PPO doesn't have Q-value, so pass 0
-                patient_data=patient_data
-            )
-        except Exception as e:
-            explanation = f"(Error generating explanation: {e})"
-
-        print(f"\nEvaluation Sample {i + 1}")
-        print(f"Predicted: {predicted_antibiotic}, Actual: {actual_antibiotic}")
-        print("Explanation:")
-        print(explanation)
-
         
         # Default outcome and patient data
         patient_outcome = {'expire_flag': 0, 'los': 5}
@@ -68,6 +52,25 @@ def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic
         
         # Log evaluation step
         log_evaluation_step(i, action, reward, predicted_antibiotic, actual_antibiotic, 'test_logs')
+
+        # Generate explanation
+        try:
+            explanation = explain_recommendation(
+                recommendation=(predicted_antibiotic, probs[action]),
+                patient_data=patient_data
+            )
+        except Exception as e:
+            explanation = f"(Error generating explanation: {e})"
+
+        print(f"\nEvaluation Sample {i + 1}")
+        print(f"Predicted: {predicted_antibiotic}, Actual: {actual_antibiotic}")
+        print("Explanation:")
+        print(explanation)
+
+        # Save explanation to test_logs
+        with open(explanation_file_path, 'a') as f:
+            f.write(f"{i + 1},{predicted_antibiotic},{actual_antibiotic},{probs[action]:.4f},{explanation.replace(',', ';')}\n")
+    
     
     # Generate evaluation plots and reports
     plot_confusion_matrix(true_labels, predictions, class_names, 'test_logs')
@@ -105,7 +108,12 @@ if __name__ == "__main__":
     ppo_agent.network.load_weights('checkpoints/best_accuracy_ppo_model.weights.h5')
     # ppo_agent.network.load_weights('checkpoints/final_ppo_model.weights.h5')
 
-    evaluation_results = evaluate_ppo(ppo_agent, X_test, y_test, prescription_contexts, idx_to_antibiotic)
+    explanation_file_path = 'test_logs/explanation.csv'
+    with open(explanation_file_path, 'w') as explanation_file:
+        explanation_file.write("step,predicted_antibiotic,actual_antibiotic,score,explanation\n")
+
+    evaluation_results = evaluate_ppo(ppo_agent, X_test, y_test, prescription_contexts, idx_to_antibiotic, explanation_file_path)
+    
     print("Evaluation finished \n")
     print(f"Accuracy: {evaluation_results['accuracy']:.4f}")
     print(f"Average Reward: {evaluation_results['avg_reward']:.4f}")
