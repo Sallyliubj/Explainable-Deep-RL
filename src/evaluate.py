@@ -26,6 +26,22 @@ def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic
         
         predicted_antibiotic = idx_to_antibiotic[action]
         actual_antibiotic = idx_to_antibiotic[y_test[i]]
+
+        from utils.explainability import explain_recommendation  # or wherever it's defined
+
+        try:
+            explanation = explain_recommendation(
+                recommendation=(predicted_antibiotic, 0),  # PPO doesn't have Q-value, so pass 0
+                patient_data=patient_data
+            )
+        except Exception as e:
+            explanation = f"(Error generating explanation: {e})"
+
+        print(f"\nEvaluation Sample {i + 1}")
+        print(f"Predicted: {predicted_antibiotic}, Actual: {actual_antibiotic}")
+        print("Explanation:")
+        print(explanation)
+
         
         # Default outcome and patient data
         patient_outcome = {'expire_flag': 0, 'los': 5}
