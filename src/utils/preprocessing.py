@@ -173,8 +173,8 @@ def prepare_prescription_contexts(antibiotic_prescriptions, microbiologyevents, 
 
 def preprocess_and_save_data(data_path='dataset/mimic-iii-clinical-database-demo-1.4'):
 
-    if not os.path.exists('dataset/train/X_train') \
-        or not os.path.exists('dataset/test/X_test') \
+    if not os.path.exists('dataset/train/X_train.npy') \
+        or not os.path.exists('dataset/test/X_test.npy') \
         or not os.path.exists('dataset/train/y_train.npy') \
         or not os.path.exists('dataset/test/y_test.npy')\
         or not os.path.exists('dataset/train/prescription_contexts.pkl') \
@@ -306,6 +306,7 @@ def preprocess_and_save_data(data_path='dataset/mimic-iii-clinical-database-demo
 
 
         # Save data
+        print("Saving data...")
         os.makedirs('dataset/train/', exist_ok=True)
         os.makedirs('dataset/test/', exist_ok=True)
         
@@ -320,8 +321,11 @@ def preprocess_and_save_data(data_path='dataset/mimic-iii-clinical-database-demo
         pickle.dump(cat_cols, open('dataset/train/cat_cols.pkl', 'wb'))
         pickle.dump(X, open('dataset/train/X_original.pkl', 'wb'))
         
-        np.save('dataset/train/state_size.txt', state_size)
-        np.save('dataset/train/n_actions.txt', n_actions)
+        with open('dataset/train/state_size.txt', 'w') as f:
+            f.write(str(state_size))
+
+        with open('dataset/train/n_actions.txt', 'w') as f:
+            f.write(str(n_actions))
 
         print("Data saved successfully.\n")
 
@@ -338,8 +342,13 @@ def preprocess_and_save_data(data_path='dataset/mimic-iii-clinical-database-demo
         num_cols = pickle.load(open('dataset/train/num_cols.pkl', 'rb'))
         cat_cols = pickle.load(open('dataset/train/cat_cols.pkl', 'rb'))
         X = pickle.load(open('dataset/train/X_original.pkl', 'rb'))
-        state_size = np.load('dataset/train/state_size.txt', 'rb')
-        n_actions = np.load('dataset/train/n_actions.txt', 'rb')
-    
+        
+        # Load state_size and n_actions from text files
+        with open('dataset/train/state_size.txt', 'r') as f:
+            state_size = int(f.read().strip())
+
+        with open('dataset/train/n_actions.txt', 'r') as f:
+            n_actions = int(f.read().strip())
+
     print("Data loaded successfully.\n")
     return state_size, n_actions, X_train, X_test, y_train, y_test, prescription_contexts, idx_to_antibiotic, num_cols, cat_cols, X
