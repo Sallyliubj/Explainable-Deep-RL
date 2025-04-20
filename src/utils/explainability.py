@@ -306,4 +306,71 @@ def analyze_feature_importance(agent,
         })
         comparison_df.to_csv(f'{output_dir}/importance_comparison.csv', index=False)
     
-    print("\nFeature importance analysis completed. Results saved in:", output_dir) 
+    print("\nFeature importance analysis completed. Results saved in:", output_dir)
+
+def explain_recommendation(recommendation, patient_data):
+    """
+    Generate a clinical explanation for the antibiotic recommendation.
+
+    Args:
+        recommendation (tuple): (antibiotic_name, probability or score placeholder).
+        patient_data (dict): Dictionary containing patient context features.
+
+    Returns:
+        str: Explanation string.
+    """
+    antibiotic, prob = recommendation
+    explanation = f"Recommended {antibiotic} (Score: {prob:.4f}).\n"
+
+    organisms = []
+    for org_key, org_name in [
+        ('has_staph', 'Staphylococcus'),
+        ('has_strep', 'Streptococcus'),
+        ('has_e.coli', 'E. coli'),
+        ('has_pseudomonas', 'Pseudomonas'),
+        ('has_klebsiella', 'Klebsiella')
+    ]:
+        if patient_data.get(org_key, 0) == 1:
+            organisms.append(org_name)
+
+    if organisms:
+        explanation += f"- Patient has {', '.join(organisms)} organism(s).\n"
+        coverage = {
+            'Staphylococcus': ['VANCOMYCIN', 'CEFAZOLIN'],
+            'Streptococcus': ['AMOXICILLIN', 'CEFTRIAXONE'],
+            'E. coli': ['CIPROFLOXACIN', 'CEFTRIAXONE'],
+            'Pseudomonas': ['PIPERACILLIN', 'MEROPENEM', 'CIPROFLOXACIN'],
+            'Klebsiella': ['CEFTRIAXONE', 'MEROPENEM']
+        }
+        for org in organisms:
+            if antibiotic.upper() in coverage.get(org, []):
+                explanation += f"- {antibiotic} provides good coverage for {org}.\n"
+
+    if patient_data.get('pneumonia', 0):
+        explanation += "- Patient has pneumonia.\n"
+        if antibiotic.upper() in ['CEFTRIAXONE', 'LEVOFLOXACIN', 'AZITHROMYCIN']:
+            explanation += f"- {antibiotic} is recommended for pneumonia treatment.\n"
+
+    if patient_data.get('uti', 0):
+        explanation += "- Patient has UTI.\n"
+        if antibiotic.upper() in ['CIPROFLOXACIN', 'CEFTRIAXONE']:
+            explanation += f"- {antibiotic} is recommended for UTI treatment.\n"
+
+    if patient_data.get('sepsis', 0):
+        explanation += "- Patient has sepsis.\n"
+        if antibiotic.upper() in ['VANCOMYCIN', 'PIPERACILLIN', 'MEROPENEM']:
+            explanation += f"- {antibiotic} is recommended for sepsis treatment.\n"
+
+    if patient_data.get('wbc', 10) > 12:
+        explanation += f"- Elevated WBC ({patient_data['wbc']:.1f}) suggests infection.\n"
+    if patient_data.get('lactate', 1.5) > 2.0:
+        explanation += f"- Elevated lactate ({patient_data['lactate']:.1f}) suggests hypoperfusion.\n"
+    if patient_data.get('creatinine', 1.0) > 1.5:
+        explanation += f"- Elevated creatinine ({patient_data['creatinine']:.1f}) may affect antibiotic dosing.\n"
+
+    if antibiotic.upper() in ['MEROPENEM', 'PIPERACILLIN', 'VANCOMYCIN']:
+        explanation += "- This is a broad-spectrum antibiotic.\n"
+    else:
+        explanation += "- This is a narrower-spectrum antibiotic.\n"
+
+    return explanation
