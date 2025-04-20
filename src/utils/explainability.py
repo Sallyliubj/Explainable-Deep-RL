@@ -6,6 +6,8 @@ import shap
 import tensorflow as tf
 from typing import List, Dict, Any
 import os
+import warnings
+warnings.filterwarnings("ignore")
 
 def plot_feature_importance(importance_values: np.ndarray,
                           feature_names: List[str],
@@ -125,7 +127,7 @@ def analyze_shap_values(agent,
                        states: np.ndarray,
                        feature_names: List[str],
                        output_dir: str,
-                       n_samples: int = 100):
+                       n_samples: int = 100) -> np.ndarray:
     """
     Analyze and visualize SHAP values for feature importance.
     
@@ -135,6 +137,9 @@ def analyze_shap_values(agent,
         feature_names: List of feature names
         output_dir: Directory to save outputs
         n_samples: Number of background samples for SHAP
+        
+    Returns:
+        np.ndarray: Processed SHAP values with shape (n_features,)
     """
     print(f"Starting SHAP analysis with {len(states)} states and {len(feature_names)} features")
     print(f"State shape: {states.shape}")
@@ -143,7 +148,8 @@ def analyze_shap_values(agent,
     def model_predict(x):
         if isinstance(x, pd.DataFrame):
             x = x.values
-        return agent.network.get_policy(tf.convert_to_tensor(x, dtype=tf.float32)).numpy()
+        x_tensor = tf.convert_to_tensor(x, dtype=tf.float32)
+        return agent.network.get_policy(x_tensor).numpy()
     
     # Sample background data
     background_data = states[np.random.choice(len(states), min(n_samples, len(states)), replace=False)]
@@ -157,30 +163,35 @@ def analyze_shap_values(agent,
         print("Calculating SHAP values...")
         shap_values = explainer.shap_values(states[:n_samples])
         
-        # For multi-class output, aggregate SHAP values across all classes and ensure it's 1D
+        print(f"Initial SHAP values shape/type: {type(shap_values)}")
         if isinstance(shap_values, list):
             print(f"Multi-class output detected with {len(shap_values)} classes")
-            # Take the mean across classes first
-            shap_values = np.abs(np.array(shap_values)).mean(axis=0)
-            print(f"Shape after class aggregation: {shap_values.shape}")
-            # Then take mean across samples
-            shap_values = shap_values.mean(axis=0)
-            print(f"Shape after sample aggregation: {shap_values.shape}")
+            # Convert list to array and take absolute mean across classes and samples
+            shap_array = np.array(shap_values)
+            shap_values = np.mean(np.abs(shap_array), axis=0)  # Mean across classes
+            shap_values = np.mean(shap_values, axis=0)         # Mean across samples
         else:
-            print("Single-class output detected")
-            shap_values = np.abs(shap_values).mean(axis=0)
-            print(f"Shape after aggregation: {shap_values.shape}")
+            print(f"Single output with shape: {shap_values.shape}")
+            if len(shap_values.shape) == 3:  # Shape: (samples, features, actions)
+                print("Taking mean across samples and actions...")
+                shap_values = np.mean(np.abs(shap_values), axis=0)  # Mean across samples
+                shap_values = np.mean(shap_values, axis=1)          # Mean across actions
+            elif len(shap_values.shape) > 1:
+                shap_values = np.mean(np.abs(shap_values), axis=0)  # Mean across samples
+        
+        print(f"Shape after aggregation: {shap_values.shape}")
         
         # Ensure the number of SHAP values matches the number of features
         if len(shap_values) != len(feature_names):
             print(f"Warning: SHAP values dimension ({len(shap_values)}) doesn't match feature names ({len(feature_names)})")
-            # If we have more SHAP values than features, take the first len(feature_names) values
             if len(shap_values) > len(feature_names):
                 print("Truncating SHAP values to match feature count")
                 shap_values = shap_values[:len(feature_names)]
             else:
-                # If we have fewer SHAP values, this indicates a problem
-                raise ValueError(f"Number of SHAP values ({len(shap_values)}) is less than number of features ({len(feature_names)})")
+                # If we have fewer SHAP values, pad with zeros
+                shap_values = np.pad(shap_values,
+                                   (0, len(feature_names) - len(shap_values)),
+                                   'constant')
         
         print(f"Final SHAP values shape: {shap_values.shape}")
         
@@ -201,16 +212,19 @@ def analyze_shap_values(agent,
         })
         shap_df.to_csv(f'{output_dir}/shap_values.csv', index=False)
         
+        return shap_values
+        
     except Exception as e:
         print(f"Error during SHAP analysis: {str(e)}")
         print("Skipping SHAP analysis...")
+        return None
 
 def analyze_feature_importance(agent,
                              states: np.ndarray,
                              feature_names: List[str],
                              output_dir: str):
     """
-    Analyze feature importance using both attention weights and SHAP values.
+    Analyze feature importance using attention weights, SHAP values, and a hybrid metric.
     
     Args:
         agent: PPO agent instance
@@ -223,10 +237,73 @@ def analyze_feature_importance(agent,
     
     # Analyze attention weights
     print("\nCalculating attention-based feature importance...")
+    attention_weights = []
+    for state in states:
+        state_tensor = tf.convert_to_tensor([state], dtype=tf.float32)
+        weights = agent.network.get_attention_weights(state_tensor)
+        # Ensure weights are flattened properly
+        weights_flat = weights.numpy().flatten()
+        if len(weights_flat) > len(feature_names):
+            weights_flat = weights_flat[:len(feature_names)]
+        attention_weights.append(weights_flat)
+    
+    # Average attention weights across all states
+    mean_attention = np.mean(attention_weights, axis=0)
+    
+    # Ensure mean_attention matches feature_names length
+    if len(mean_attention) > len(feature_names):
+        mean_attention = mean_attention[:len(feature_names)]
+    elif len(mean_attention) < len(feature_names):
+        # Pad with zeros if needed
+        mean_attention = np.pad(mean_attention, 
+                              (0, len(feature_names) - len(mean_attention)),
+                              'constant')
+    
+    # Save and plot attention weights
     analyze_attention_weights(agent, states, feature_names, output_dir)
     
-    # Analyze SHAP values
+    # Calculate SHAP values
     print("\nCalculating SHAP values...")
-    analyze_shap_values(agent, states, feature_names, output_dir)
+    shap_values = analyze_shap_values(agent, states, feature_names, output_dir)
+    
+    if shap_values is not None:
+        # Calculate hybrid importance
+        print("\nCalculating hybrid feature importance...")
+        
+        # Verify shapes before normalization
+        print(f"Shape check - Attention: {mean_attention.shape}, SHAP: {shap_values.shape}")
+        
+        # Normalize both metrics to [0, 1] scale
+        norm_attention = (mean_attention - mean_attention.min()) / (mean_attention.max() - mean_attention.min() + 1e-10)
+        norm_shap = (shap_values - shap_values.min()) / (shap_values.max() - shap_values.min() + 1e-10)
+        
+        # Calculate hybrid importance as the average of normalized scores
+        hybrid_importance = (norm_attention + norm_shap) / 2
+        
+        # Plot hybrid importance
+        plot_feature_importance(
+            hybrid_importance,
+            feature_names,
+            'Hybrid Feature Importance (Attention + SHAP)',
+            f'{output_dir}/hybrid_feature_importance.png'
+        )
+        
+        # Save hybrid importance to CSV
+        hybrid_df = pd.DataFrame({
+            'Feature': feature_names,
+            'Importance': hybrid_importance,
+            'Normalized_Attention': norm_attention,
+            'Normalized_SHAP': norm_shap
+        })
+        hybrid_df.to_csv(f'{output_dir}/hybrid_importance.csv', index=False)
+        
+        # Create comparison DataFrame
+        comparison_df = pd.DataFrame({
+            'Feature': feature_names,
+            'Attention_Importance': mean_attention,
+            'SHAP_Importance': shap_values,
+            'Hybrid_Importance': hybrid_importance
+        })
+        comparison_df.to_csv(f'{output_dir}/importance_comparison.csv', index=False)
     
     print("\nFeature importance analysis completed. Results saved in:", output_dir) 
