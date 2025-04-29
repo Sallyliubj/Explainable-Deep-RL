@@ -31,12 +31,20 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
     """
     print("\nStarting PPO training...")
     
-    # Create checkpoints directory if it doesn't exist
+    # Create checkpoints and logs directory if they don't exist
     os.makedirs('checkpoints', exist_ok=True)
+    os.makedirs('train_logs', exist_ok=True)
     
     # Log training data distribution
     class_names = [idx_to_antibiotic[i] for i in range(len(idx_to_antibiotic))]
     log_dataset_distribution(y_train, class_names, 'train_logs')
+    
+    # Initialize training metrics
+    training_data = {
+        'episode': [],
+        'reward': [],
+        'accuracy': [],
+    }
     
     best_reward = float('-inf')
     best_accuracy = float('-inf')
@@ -147,6 +155,15 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
         episode_rewards.append(total_reward)
         episode_accuracies.append(accuracy)
         
+        # Record training metrics
+        training_data['episode'].append(episode + 1)
+        training_data['reward'].append(total_reward)
+        training_data['accuracy'].append(accuracy)
+        
+        # Save training metrics to CSV
+        df = pd.DataFrame(training_data)
+        df.to_csv('train_logs/training_progress.csv', index=False)
+        
         # Save best model based on reward and accuracy
         if total_reward > best_reward:
             best_reward = total_reward
@@ -161,9 +178,13 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
         # Print episode stats
         print(f"Episode: {episode+1}/{episodes}, Reward: {total_reward:.2f}, Accuracy: {accuracy:.4f}")
         
-        # Plot training progress every 10 episodes
-        if (episode + 1) % 10 == 0:
-            plot_training_progress(episode_rewards, episode_accuracies, 'train_logs')
+        # Plot training progress every 10 episodes and at the end
+        if (episode + 1) % 10 == 0 or episode == episodes - 1:
+            try:
+                plot_training_progress(episode_rewards, episode_accuracies, 'train_logs')
+                print(f"Saved training progress plot at episode {episode + 1}")
+            except Exception as e:
+                print(f"Error saving plot at episode {episode + 1}: {str(e)}")
     
     # Save final model after training
     agent.network.save_weights('checkpoints/final_ppo_model.weights.h5')
@@ -196,70 +217,6 @@ def train_ppo(agent, X_train, y_train, prescription_contexts, idx_to_antibiotic,
     
     return agent
 
-# def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic):
-#     """Evaluate the trained PPO agent with detailed logging."""
-#     print("\nEvaluating PPO model...")
-    
-#     # Log test data distribution
-#     class_names = [idx_to_antibiotic[i] for i in range(len(idx_to_antibiotic))]
-#     log_dataset_distribution(y_test, class_names, 'test_logs', phase='test')
-    
-#     predictions = []
-#     true_labels = []
-#     all_rewards = []
-    
-#     for i, state in enumerate(X_test):
-#         action, _ = agent.get_action(state, training=False)
-#         predictions.append(action)
-#         true_labels.append(y_test[i])
-        
-#         predicted_antibiotic = idx_to_antibiotic[action]
-#         actual_antibiotic = idx_to_antibiotic[y_test[i]]
-        
-#         # Default outcome and patient data
-#         patient_outcome = {'expire_flag': 0, 'los': 5}
-#         patient_data = {}
-        
-#         if i < len(prescription_contexts):
-#             context = prescription_contexts[i]
-#             patient_data = {
-#                 'has_staph': 1 if 'staph' in str(context.get('organisms', [])).lower() else 0,
-#                 'has_strep': 1 if 'strep' in str(context.get('organisms', [])).lower() else 0,
-#                 'has_e.coli': 1 if 'e.coli' in str(context.get('organisms', [])).lower() else 0,
-#                 'has_pseudomonas': 1 if 'pseudomonas' in str(context.get('organisms', [])).lower() else 0,
-#                 'has_klebsiella': 1 if 'klebsiella' in str(context.get('organisms', [])).lower() else 0,
-#                 'pneumonia': context.get('pneumonia', False),
-#                 'uti': context.get('uti', False),
-#                 'sepsis': context.get('sepsis', False),
-#                 'wbc': context.get('wbc', 10),
-#                 'lactate': context.get('lactate', 1.5),
-#                 'creatinine': context.get('creatinine', 1.0)
-#             }
-        
-#         reward = calculate_reward(predicted_antibiotic, actual_antibiotic, patient_outcome, patient_data)
-#         all_rewards.append(reward)
-        
-#         # Log evaluation step
-#         log_evaluation_step(i, action, reward, predicted_antibiotic, actual_antibiotic, 'test_logs')
-    
-#     # Generate evaluation plots and reports
-#     plot_confusion_matrix(true_labels, predictions, class_names, 'test_logs')
-#     plot_rewards(all_rewards, 'test_logs')
-#     save_classification_report(true_labels, predictions, class_names, 'test_logs')
-    
-#     # Calculate metrics
-#     accuracy = np.mean(np.array(predictions) == y_test)
-#     avg_reward = np.mean(all_rewards)
-    
-#     print(f"Test Accuracy: {accuracy:.4f}")
-#     print(f"Average Reward: {avg_reward:.4f}")
-    
-#     return {
-#         'accuracy': accuracy,
-#         'avg_reward': avg_reward,
-#         'predictions': predictions,
-#         'rewards': all_rewards
-#     }
 
 def main():
 
@@ -278,6 +235,6 @@ def main():
         batch_size=32,
         episodes=200
     )
-    
+
 if __name__ == "__main__":
     main() 

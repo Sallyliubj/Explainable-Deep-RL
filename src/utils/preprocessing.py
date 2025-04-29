@@ -1,3 +1,4 @@
+# This preprocessing code was adapted from https://www.kaggle.com/code/yepvaishz/rl-research
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
@@ -171,7 +172,7 @@ def prepare_prescription_contexts(antibiotic_prescriptions, microbiologyevents, 
     return prescription_contexts
 
 
-def preprocess_and_save_data(data_path='dataset/mimic-iii-clinical-database-demo-1.4'):
+def preprocess_and_save_data(data_path='dataset/mimic-iii-clinical-database'):
 
     if not os.path.exists('dataset/train/X_train.npy') \
         or not os.path.exists('dataset/test/X_test.npy') \
