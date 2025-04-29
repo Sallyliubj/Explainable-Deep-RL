@@ -100,12 +100,34 @@ The server and evaluation scripts are configured to use these pre-trained models
 
 ## 🧩 Model Architecture
 
-The model uses a PPO architecture with:
-- Shared layers for feature extraction
-- Separate policy (actor) and value (critic) networks
-- Gaussian action distribution for continuous action spaces
-- Clipped surrogate objective for stable training
-- Attention mechanism for improved explainability
+The model uses a PPO (Proximal Policy Optimization) architecture with the following components:
+
+- **Multi-Head Attention Mechanism**: 
+  - The input patient state first passes through a custom multi-head attention layer
+  - Uses 4 attention heads with entropy regularization for better feature interpretability
+  - Produces feature importance weights that highlight which inputs most influenced the decision
+
+- **Shared Feature Extraction Layers**:
+  - Dense layers (128 → 64 units) with ReLU activation
+  - Batch normalization and dropout for regularization
+  - Processes the attended patient state before policy/value estimation
+
+- **Policy Network (Actor)**:
+  - Takes features from shared layers
+  - Dense layers with softmax output for antibiotic selection probabilities
+  - Outputs discrete action probabilities for each antibiotic option
+
+- **Value Network (Critic)**:
+  - Estimates the value function of states
+  - Dense layers with linear output
+  - Used for advantage estimation in PPO algorithm
+
+- **PPO Training Process**:
+  - Implements clipped surrogate objective for stable policy updates
+  - Uses Generalized Advantage Estimation (GAE)
+  - Employs multiple optimization epochs per data batch
+
+The combination of PPO with multi-head attention provides both stable learning and explainable recommendations.
 
 ## 🎯 Evaluation Metrics
 
