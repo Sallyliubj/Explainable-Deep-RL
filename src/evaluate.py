@@ -1,6 +1,7 @@
 import numpy as np
 import shap
 import tensorflow as tf
+import os
 
 from data.data_loader import load_mimic_data, ANTIBIOTICS_LIST
 from utils.preprocessing import calculate_age, get_events_before_prescription, get_patient_diagnoses, preprocess_and_save_data
@@ -143,6 +144,8 @@ def evaluate_ppo(agent, X_test, y_test, prescription_contexts, idx_to_antibiotic
 
 
 if __name__ == "__main__":
+    os.makedirs('test_logs', exist_ok=True)
+
     # Load data
     state_size, n_actions, X_train, X_test, y_train, y_test, prescription_contexts, idx_to_antibiotic, num_cols, cat_cols, X_original = preprocess_and_save_data()
     
