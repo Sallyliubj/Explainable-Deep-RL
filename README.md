@@ -125,4 +125,4 @@ The system is evaluated on:
 
 **Attribution**
 
-The preprocessing methodologies and reward formula used in this project are adapted from [Kaggle](https://www.kaggle.com/code/yepvaishz/rl-research). The original implementation of double DQN agent provided valuable insights and serves as our benchmark.
+The preprocessing methodologies and reward formula used in this project were adapted from [https://www.kaggle.com/code/yepvaishz/rl-research](https://www.kaggle.com/code/yepvaishz/rl-research). The original implementation of double DQN agent provided valuable insights and serves as our benchmark.
