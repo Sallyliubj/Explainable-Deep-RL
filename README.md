@@ -75,12 +75,6 @@ The server and evaluation scripts are configured to use these pre-trained models
 │       ├── src/                  # UI source code
 │       ├── public/               # Static assets
 │       └── package.json          # UI dependencies
-├── DQN/                          # Baseline implementation using DQN
-│   ├── DQL_Agent.py              # DQN agent implementation
-│   ├── antibioticEnv.py          # Custom environment for antibiotics
-│   ├── train_dql.py              # DQN training script
-│   ├── test_dql.py               # DQN evaluation script
-│   └── explainability.py         # Basic explainability for DQN
 ├── dataset/                      # Dataset storage
 ├── checkpoints/                  # Saved model checkpoints
 ├── train_logs/                   # Training logs and visualizations
